@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+<title>MobiWholesale</title>
+<meta name="theme-color" content="#0A0E1A"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="MobiWholesale"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" href="icon.svg"/>
+<link rel="apple-touch-icon" href="icon.svg"/>
+<style>
+:root{
+  --bg:#080B14; --surf:#121829; --surf2:#1A2133; --raise:#252E45;
+  --line:#232C42; --line-soft:#171E2E;
+  --txt:#EEF2FC; --txt2:#9BA7C4; --txt3:#5C6886; --mute:#41506E;
+  --indigo:#6588FF; --indigo-deep:#3F5BD6; --indigo-glow:rgba(101,136,255,.40);
+  --mint:#2FDCAE; --mint-deep:#16B08A; --mint-glow:rgba(47,220,174,.34);
+  --amber:#FBBF4A; --rose:#FF6B6B; --green:#3BDDA0; --violet:#B197FC;
+  --amber-bg:rgba(251,191,74,.13); --rose-bg:rgba(255,107,107,.13);
+  --green-bg:rgba(59,221,160,.13); --indigo-bg:rgba(101,136,255,.13);
+  --mint-bg:rgba(47,220,174,.13); --violet-bg:rgba(177,151,252,.13);
+  --accent:var(--indigo); --accent-deep:var(--indigo-deep); --accent-glow:var(--indigo-glow); --accent-bg:var(--indigo-bg);
+  --shadow:0 1px 1px rgba(0,0,0,.2),0 4px 16px rgba(0,0,0,.28);
+  --radius:18px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;margin:0;padding:0}
+button{color:inherit;font-family:inherit}
+svg{flex:none;display:inline-block}
+input{min-width:0}
+.card,.qa,.tap{color:var(--txt)}
+html,body{height:100%}
+body{background:#04060c;color:var(--txt);min-height:100dvh;display:flex;align-items:center;justify-content:center;
+  font-family:-apple-system,'Segoe UI',Roboto,system-ui,sans-serif;overscroll-behavior:none;
+  font-feature-settings:"cv01","ss01";-webkit-font-smoothing:antialiased;letter-spacing:-.1px}
+.shell{width:100%;max-width:430px;height:100dvh;max-height:932px;position:relative;
+  background:radial-gradient(130% 60% at 50% -5%,#141d36 0%,var(--bg) 42%);
+  overflow:hidden;display:flex;flex-direction:column;box-shadow:0 40px 100px rgba(0,0,0,.7)}
+@media(min-width:480px){.shell{border-radius:40px;border:10px solid #02040a;height:93dvh}}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+.b{font-weight:700}.sb{font-weight:600}.tiny{font-size:11px}.mini{font-size:12.5px}
+.muted{color:var(--txt2)}.dim{color:var(--txt3)}
+
+/* status bar */
+.statusbar{height:30px;display:flex;align-items:center;justify-content:space-between;padding:0 20px 0 22px;
+  font-size:12.5px;font-weight:600;flex:none;z-index:40;color:var(--txt)}
+.sig{display:inline-flex;gap:1.5px;align-items:flex-end;height:9px;vertical-align:middle}
+.sig i{width:2.5px;background:var(--txt);border-radius:1px;display:inline-block}
+.sig i:nth-child(1){height:3px}.sig i:nth-child(2){height:5px}.sig i:nth-child(3){height:7px}.sig i:nth-child(4){height:9px}
+.batt{display:inline-block;width:20px;height:10px;border:1.4px solid var(--txt);border-radius:3px;position:relative;padding:1px;vertical-align:middle;opacity:.85}
+.batt i{display:block;height:100%;width:74%;background:var(--txt);border-radius:1px}
+
+/* appbar */
+.appbar{padding:8px 18px 14px;flex:none;z-index:30;display:flex;align-items:center;gap:12px}
+.appbar h1{font-size:19px;font-weight:700;letter-spacing:-.5px;flex:1;line-height:1.15}
+.appbar .sub{font-size:12px;color:var(--txt2);margin-top:2px;font-weight:500}
+.iconbtn{position:relative;width:38px;height:38px;border-radius:12px;background:var(--surf);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;color:var(--txt);cursor:pointer;flex:none}
+.iconbtn svg{width:19px;height:19px}
+.back{font-size:25px;line-height:1;background:none;border:none;color:var(--txt);cursor:pointer;width:26px;display:flex;align-items:center}
+.netchip{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;padding:5px 10px;border-radius:999px;
+  background:var(--surf);border:1px solid var(--line);color:var(--txt2)}
+.netchip svg{width:13px;height:13px}
+.netchip.on{color:var(--green)}
+
+.scroll{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(100px + env(safe-area-inset-bottom));
+  animation:fadeup .22s ease-out}
+.scroll::-webkit-scrollbar{width:0}
+.pad{padding:4px 18px 18px}
+@keyframes fadeup{from{opacity:0}to{opacity:1}}
+
+/* tab bar */
+.tabbar{position:absolute;bottom:0;left:0;right:0;height:78px;background:#0A0F1C;
+  border-top:1px solid var(--line);display:flex;padding:9px 8px calc(18px + env(safe-area-inset-bottom));z-index:35}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:none;background:none;cursor:pointer;
+  color:var(--txt3);font-size:10px;font-weight:600;padding:5px 0 0;transition:color .15s;position:relative}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--accent)}
+.tab.on::before{content:"";position:absolute;top:-9px;width:26px;height:3px;border-radius:0 0 3px 3px;background:var(--accent)}
+.fab{position:absolute;bottom:calc(94px + env(safe-area-inset-bottom));right:18px;width:56px;height:56px;border-radius:18px;
+  background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;border:none;cursor:pointer;
+  box-shadow:0 10px 30px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;z-index:36;transition:transform .12s}
+.fab svg{width:25px;height:25px}
+.fab:active{transform:scale(.92)}
+
+/* cards */
+.card{background:linear-gradient(180deg,rgba(255,255,255,.02),transparent 40%),var(--surf);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card-p{padding:16px}
+.row{display:flex;align-items:center;gap:12px}
+.between{display:flex;align-items:center;justify-content:space-between;gap:10px}
+h2.sec{font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--txt3);margin:24px 4px 12px;display:flex;align-items:center;gap:8px}
+h2.sec.first{margin-top:8px}
+h2.sec::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+.tap{cursor:pointer;transition:transform .12s ease,opacity .15s,border-color .15s}
+.tap:active{transform:scale(.975);opacity:.92}
+
+.pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;font-size:10.5px;font-weight:700;letter-spacing:.2px}
+.pill.green{background:var(--green-bg);color:var(--green)}
+.pill.amber{background:var(--amber-bg);color:var(--amber)}
+.pill.rose{background:var(--rose-bg);color:var(--rose)}
+.pill.indigo{background:var(--indigo-bg);color:var(--indigo)}
+.pill.mint{background:var(--mint-bg);color:var(--mint)}
+.pill.violet{background:var(--violet-bg);color:var(--violet)}
+.pill.gray{background:var(--raise);color:var(--txt2)}
+.dot{width:7px;height:7px;border-radius:50%;flex:none}
+.avatar{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;color:#fff;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 2px 6px rgba(0,0,0,.2)}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:15px;border-radius:14px;border:none;
+  font-weight:700;font-size:15px;cursor:pointer;font-family:inherit;transition:transform .12s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn svg{width:18px;height:18px}
+.btn-pri{background:linear-gradient(135deg,var(--accent),var(--accent-deep));color:#fff;box-shadow:0 6px 20px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,.22)}
+.btn-pri:disabled{opacity:.4;box-shadow:none}
+.btn-ghost{background:var(--accent-bg);color:var(--accent)}
+.btn-soft{background:var(--surf2);color:var(--txt);border:1px solid var(--line)}
+.btn-sm{padding:10px 14px;font-size:13px;width:auto;border-radius:12px}
+
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--txt2);margin:0 0 7px 2px}
+.field input,.field select{width:100%;padding:14px;border:1.5px solid var(--line);border-radius:13px;font-size:15px;
+  font-family:inherit;background:var(--surf2);color:var(--txt);outline:none;transition:border .15s,box-shadow .15s}
+.field input::placeholder{color:var(--txt3)}
+.field input:focus,.field select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-glow)}
+.field select{appearance:none;-webkit-appearance:none}
+
+.progress{height:8px;border-radius:999px;background:var(--raise);overflow:hidden}
+.progress i{display:block;height:100%;border-radius:999px;transition:width .4s cubic-bezier(.22,1,.36,1)}
+.seg{display:flex;background:var(--surf2);border-radius:13px;padding:4px;gap:3px;border:1px solid var(--line)}
+.seg button{flex:1;border:none;background:none;padding:9px;border-radius:10px;font-size:12.5px;font-weight:600;color:var(--txt2);cursor:pointer;font-family:inherit;transition:.15s}
+.seg button.on{background:var(--raise);color:var(--txt);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.listitem{display:flex;align-items:center;gap:13px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.listitem:last-child{border-bottom:none}
+
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(3,5,10,.72);z-index:50;display:flex;align-items:flex-end;animation:fade .18s ease}
+.sheet{background:var(--surf);width:100%;border-radius:26px 26px 0 0;max-height:92%;overflow-y:auto;
+  animation:up .3s cubic-bezier(.22,1,.36,1);padding-bottom:26px;border-top:1px solid var(--line)}
+.sheet::-webkit-scrollbar{width:0}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--raise);margin:11px auto 4px}
+.sheet-h{padding:6px 20px 14px;border-bottom:1px solid var(--line-soft);position:sticky;top:0;background:var(--surf);z-index:2}
+.sheet-h h3{font-size:18px;font-weight:700}
+.sheet-body{padding:16px 20px}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@keyframes up{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes pop{from{transform:scale(.8);opacity:0}to{transform:scale(1);opacity:1}}
+
+.toast{position:absolute;left:18px;right:18px;bottom:98px;background:var(--surf2);border:1px solid var(--line);color:var(--txt);
+  padding:14px 16px;border-radius:14px;z-index:60;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:10px;
+  box-shadow:var(--shadow);animation:up .3s cubic-bezier(.22,1,.36,1)}
+.toast .ck{width:24px;height:24px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;flex:none}
+.toast .ck svg{width:14px;height:14px;color:#06281d}
+
+.banner{display:flex;gap:11px;align-items:flex-start;padding:13px 14px;border-radius:14px;font-size:12.5px;line-height:1.55}
+.banner svg{width:17px;height:17px;flex:none;margin-top:1px}
+.banner.indigo{background:var(--indigo-bg);color:#aebcff}
+.banner.mint{background:var(--mint-bg);color:#7bf0d2}
+.banner.amber{background:var(--amber-bg);color:#f8cd86}
+.banner.rose{background:var(--rose-bg);color:#ff9d9d}
+.banner.green{background:var(--green-bg);color:#86e9c4}
+.banner.violet{background:var(--violet-bg);color:#c9b6ff}
+
+/* hero balance card */
+.hero{position:relative;border-radius:22px;padding:20px;overflow:hidden;border:1px solid var(--line);
+  background:linear-gradient(150deg,var(--surf2),var(--surf));box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.04)}
+.hero .bloom{position:absolute;top:-70px;right:-50px;width:240px;height:240px;border-radius:50%;
+  background:radial-gradient(circle,var(--accent-glow),transparent 68%);pointer-events:none;opacity:.9}
+.hero .lab{font-size:11px;font-weight:700;color:var(--txt2);letter-spacing:.6px}
+.hero .big{font-size:37px;font-weight:800;letter-spacing:-1.4px;margin-top:7px;line-height:1}
+.hero .stat{flex:1}
+.hero .stat .sl{font-size:10.5px;color:var(--txt3);font-weight:500}
+.hero .stat .sv{font-size:15px;font-weight:700;margin-top:3px}
+.hero .divider{width:1px;height:28px;background:var(--line)}
+
+.kpi{padding:15px;border-radius:16px;border:1px solid var(--line);background:var(--surf);position:relative;overflow:hidden}
+.kpi .lab{font-size:11px;font-weight:600;color:var(--txt2)}
+.kpi .val{font-size:21px;font-weight:800;margin-top:4px;letter-spacing:-.5px}
+.kpi .val.sm{font-size:16px}
+.kpi .sub{font-size:10.5px;color:var(--txt3);margin-top:3px}
+.kpi .tag{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center}
+.kpi .tag svg{width:16px;height:16px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+
+.qa{text-align:left;cursor:pointer}
+.qa .qaic{width:42px;height:42px;border-radius:13px;display:flex;align-items:center;justify-content:center}
+.qa .qaic svg{width:21px;height:21px}
+
+.barchart{display:flex;align-items:flex-end;gap:9px;height:120px;padding-top:12px}
+.barchart .bar{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+.barchart .bar .col{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--accent),transparent);min-height:4px;opacity:.9}
+.barchart .bar .lb{font-size:9.5px;color:var(--txt3);font-weight:600}
+
+.thumb{width:100%;aspect-ratio:1;border-radius:13px;background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:6px;border:1.5px dashed var(--line);color:var(--txt3);font-size:11px;font-weight:600;cursor:pointer;transition:.15s}
+.thumb svg{width:25px;height:25px}
+.thumb.done{border-style:solid;border-color:var(--green);background:var(--green-bg);color:var(--green)}
+
+/* chooser */
+.chooser{position:absolute;inset:0;z-index:80;background:radial-gradient(120% 80% at 50% -10%,#101830,#070a14 60%);
+  display:flex;flex-direction:column;padding:0 26px;color:var(--txt);animation:fade .4s ease}
+.chooser .logo{width:64px;height:64px;border-radius:20px;background:linear-gradient(135deg,var(--indigo),var(--indigo-deep));
+  display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px var(--indigo-glow);animation:pop .5s ease}
+.chooser .logo svg{width:34px;height:34px;color:#fff}
+.choice{border-radius:20px;border:1px solid var(--line);padding:20px;display:flex;align-items:center;gap:16px;cursor:pointer;
+  background:var(--surf);transition:transform .15s,border .15s;position:relative;overflow:hidden}
+.choice:active{transform:scale(.98)}
+.choice .cic{width:52px;height:52px;border-radius:15px;display:flex;align-items:center;justify-content:center;flex:none}
+.choice .cic svg{width:26px;height:26px;color:#fff}
+.choice .arr{margin-left:auto;color:var(--txt3)}
+.choice .cglow{position:absolute;top:-40px;right:-30px;width:140px;height:140px;border-radius:50%;pointer-events:none;opacity:.5}
+
+.splash{position:absolute;inset:0;z-index:90;background:radial-gradient(120% 80% at 50% -10%,#101830,#070a14 60%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;transition:opacity .5s}
+.splash .logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,var(--indigo),var(--indigo-deep));
+  display:flex;align-items:center;justify-content:center;box-shadow:0 12px 40px var(--indigo-glow);animation:pop .5s ease}
+.splash .logo svg{width:40px;height:40px;color:#fff}
+</style>
+</head>
+<body>
+<div class="shell" id="shell"></div>
+<script>
+"use strict";
+/* ============================ ICONS ============================ */
+var ICON={
+home:'<path d="M3 10.5 12 3l9 7.5M5 9.5V20a1 1 0 0 0 1 1h4v-6h4v6h4a1 1 0 0 0 1-1V9.5" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
+box:'<path d="M21 8 12 3 3 8v8l9 5 9-5V8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m3 8 9 5 9-5M12 13v8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+users:'<circle cx="9" cy="8" r="3.2" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 20c0-3 2.5-5 5.5-5s5.5 2 5.5 5M16 6.2A3 3 0 0 1 16 12M18 15c2 .6 3.5 2.3 3.5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+chart:'<path d="M4 20V4M4 20h16M8 20v-6M12.5 20V9M17 20v-9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+plus:'<path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
+bell:'<path d="M18 8a6 6 0 1 0-12 0c0 7-3 8-3 8h18s-3-1-3-8M10.3 21a2 2 0 0 0 3.4 0" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+search:'<circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"/><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+bill:'<path d="M6 2h12v20l-3-2-3 2-3-2-3 2V2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 7h6M9 11h6M9 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+rupee:'<path d="M6 4h12M6 8h12M9 4c4 0 5 4 1 4M6 12l8 8M6 12h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+ret:'<path d="M9 14 4 9l5-5M4 9h11a5 5 0 0 1 0 10H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+shield:'<path d="M12 3 5 6v5c0 4.5 3 8 7 10 4-2 7-5.5 7-10V6l-7-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m9 12 2 2 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+check:'<path d="m5 12 5 5 9-10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>',
+wa:'<path d="M12 2a10 10 0 0 0-8.5 15.2L2 22l4.9-1.3A10 10 0 1 0 12 2Zm5.3 14.1c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.2-.2-1.2-1.5-1.2-2.9s.7-2 1-2.3c.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5c-.1.2-.3.3-.1.6.1.3.6 1 1.3 1.6.9.8 1.6 1 1.9 1.2.2.1.4.1.5-.1l.6-.7c.2-.2.3-.2.6-.1l1.8.8c.2.1.4.2.5.3.1.2.1.6-.1 1Z" fill="currentColor" stroke="none"/>',
+cam:'<path d="M3 8a2 2 0 0 1 2-2h2l1.5-2h7L17 6h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="12" cy="12.5" r="3.3" stroke="currentColor" stroke-width="1.8"/>',
+doc:'<path d="M6 2h8l4 4v16H6V2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v4h4" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+sync:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+cloud:'<path d="M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6-1.5A4 4 0 0 1 17 18H7Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+arr:'<path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+store:'<path d="M4 9 5 4h14l1 5M5 9v11h14V9M5 9h14M9 20v-6h6v6" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>',
+cart:'<path d="M3 4h2l2.4 12.5a1 1 0 0 0 1 .8h8.7a1 1 0 0 0 1-.8L20 8H6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="9" cy="20" r="1.4" stroke="currentColor" stroke-width="1.6"/><circle cx="17" cy="20" r="1.4" stroke="currentColor" stroke-width="1.6"/>',
+swap:'<path d="M7 4 3 8l4 4M3 8h13M17 20l4-4-4-4M21 16H8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+clock:'<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+user:'<circle cx="12" cy="8" r="3.6" stroke="currentColor" stroke-width="1.8"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+gear:'<circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M12 2.5v3M12 18.5v3M21.5 12h-3M5.5 12h-3M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1M18.4 18.4l-2.1-2.1M7.7 7.7 5.6 5.6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+logout:'<path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 8l-4 4 4 4M6 12h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>',
+edit:'<path d="M4 20h4L18.5 9.5a2 2 0 0 0-3-3L5 17v3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 7l3 3" stroke="currentColor" stroke-width="1.8"/>',
+phone:'<path d="M5 4h3l1.5 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.5V18a2 2 0 0 1-2 2A15 15 0 0 1 3 6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>',
+lock:'<rect x="5" y="10" width="14" height="10" rx="2.5" stroke="currentColor" stroke-width="1.8"/><path d="M8 10V7a4 4 0 0 1 8 0v3" stroke="currentColor" stroke-width="1.8"/>',
+help:'<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M9.5 9.5a2.5 2.5 0 0 1 4 1.8c0 1.7-2.5 2-2.5 3.2M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
+globe:'<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 12h17M12 3.5c2.5 2.5 2.5 14.5 0 17M12 3.5c-2.5 2.5-2.5 14.5 0 17" stroke="currentColor" stroke-width="1.8"/>',
+star2:'<path d="M12 3l2.6 5.5 6 .8-4.4 4.2 1.1 6L12 16.9 6.7 19.5l1.1-6L3.4 9.3l6-.8L12 3Z" fill="currentColor" stroke="none"/>'
+};
+function svg(n,sz,ex){sz=sz||24;
+  // merge any color/style from ex into a single style attribute so size is never dropped
+  var extra=ex||'';var color='';
+  var sm=extra.match(/style="([^"]*)"/);if(sm){color=sm[1];extra=extra.replace(/style="[^"]*"/,'');}
+  var st='width:'+sz+'px;height:'+sz+'px;min-width:'+sz+'px;min-height:'+sz+'px;flex:none;display:inline-block'+(color?';'+color:'');
+  return '<svg viewBox="0 0 24 24" fill="none" '+extra+' style="'+st+'">'+ICON[n]+'</svg>';}
+/* Brand logo mark: a hexagonal spare-part / chip with an upward trade arrow */
+function logoMark(sz,grad){sz=sz||40;var g=grad||'logoGrad';return '<svg viewBox="0 0 48 48" style="width:'+sz+'px;height:'+sz+'px" fill="none">'+
+  '<defs><linearGradient id="'+g+'" x1="0" y1="0" x2="48" y2="48"><stop offset="0" stop-color="#7B93FF"/><stop offset="1" stop-color="#3F5BD6"/></linearGradient></defs>'+
+  '<path d="M24 3 41 13v22L24 45 7 35V13L24 3Z" fill="url(#'+g+')"/>'+
+  '<path d="M24 3 41 13v22L24 45 7 35V13L24 3Z" stroke="rgba(255,255,255,.25)" stroke-width="1"/>'+
+  '<path d="M16 30l6-7 4 4 7-9" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>'+
+  '<circle cx="33" cy="18" r="2.4" fill="#fff"/></svg>';}
+function wordmark(size){size=size||25;return '<span style="font-size:'+size+'px;font-weight:800;letter-spacing:-.6px">Mobi<span style="color:var(--indigo)">Wholesale</span></span>';}
+
+/* ============================ DATA ============================ */
+var INR=function(n){return "\u20B9"+Number(Math.round(n)).toLocaleString("en-IN");};
+var INRk=function(n){return n>=1000?"\u20B9"+(n/1000).toFixed(n%1000?1:0)+"k":INR(n);};
+var C=["#5B7CFA","#2DD4A7","#A98BFA","#F5B544","#FF6B6B","#34D399","#E6743C"];
+function initials(s){return s.split(" ").slice(0,2).map(function(w){return w[0];}).join("").toUpperCase();}
+function mk(n,p,s,q,w,b){return{variant:n,purchase:p,sell:s,stock:q,warranty:w,barcode:b};}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ---- WHOLESALER side ---- */
+var W={
+  online:true,pendingSync:0,
+  retailers:[
+   {id:1,name:"ABC Mobiles",owner:"Rajesh Kumar",city:"Karol Bagh, Delhi",limit:100000,out:80000,score:62,risk:"Medium",overdue:1,verified:true,sharedWith:3,docs:{aadhaar:1,pan:1,shop:1,addr:1}},
+   {id:2,name:"Sai Telecom",owner:"Venkat Rao",city:"Ameerpet, Hyderabad",limit:150000,out:42000,score:88,risk:"Low",overdue:0,verified:true,sharedWith:4,docs:{aadhaar:1,pan:1,shop:1,addr:1}},
+   {id:3,name:"Khan Mobile Hub",owner:"Imran Khan",city:"Bhendi Bazaar, Mumbai",limit:80000,out:79000,score:34,risk:"High",overdue:4,verified:true,sharedWith:6,docs:{aadhaar:1,pan:1,shop:1,addr:1}},
+   {id:4,name:"Sri Lakshmi Cells",owner:"Murali K",city:"T. Nagar, Chennai",limit:60000,out:8000,score:91,risk:"Low",overdue:0,verified:true,sharedWith:2,docs:{aadhaar:1,pan:1,shop:1,addr:1}},
+   {id:5,name:"Verma Communication",owner:"Sunil Verma",city:"Hazratganj, Lucknow",limit:50000,out:51500,score:19,risk:"Critical",overdue:7,verified:true,sharedWith:5,docs:{aadhaar:1,pan:1,shop:1,addr:1}},
+   {id:6,name:"New Star Mobiles",owner:"Pending verification",city:"Pune",limit:40000,out:0,score:0,risk:"New",overdue:0,verified:false,sharedWith:1,docs:{aadhaar:1,pan:0,shop:1,addr:0}}
+  ],
+  products:[
+   {id:1,name:"Samsung A15 Display",brand:"Samsung",img:"#5B7CFA",variants:[mk("Original",1850,2400,12,"6 months","SA15-OG-001"),mk("OLED",1450,1950,28,"3 months","SA15-OL-002"),mk("Incell",780,1150,40,"1 month","SA15-IN-003"),mk("Copy",420,690,6,"No warranty","SA15-CP-004")]},
+   {id:2,name:"iPhone 11 Battery",brand:"Apple",img:"#2DD4A7",variants:[mk("Original",1100,1650,18,"6 months","IP11-BT-OG"),mk("OEM",640,990,35,"3 months","IP11-BT-OEM"),mk("Copy",290,520,9,"No warranty","IP11-BT-CP")]},
+   {id:3,name:"Redmi Note 12 Charging IC",brand:"Xiaomi",img:"#F5B544",variants:[mk("Original",180,340,4,"1 month","RN12-IC-OG"),mk("Copy",70,150,60,"No warranty","RN12-IC-CP")]},
+   {id:4,name:"Vivo Y22 Back Panel",brand:"Vivo",img:"#A98BFA",variants:[mk("Original",240,420,22,"No warranty","VY22-BP-OG"),mk("Copy",110,210,3,"No warranty","VY22-BP-CP")]},
+   {id:5,name:"Oppo A54 Flex Cable",brand:"Oppo",img:"#FF6B6B",variants:[mk("Original",95,210,2,"1 month","OA54-FX-OG"),mk("OEM",55,130,48,"No warranty","OA54-FX-OEM")]}
+  ],
+  invoices:[
+   {id:"INV-2049",rid:1,date:"18 Jun, 10:42 AM",amount:14400,type:"Credit",items:[{p:"Samsung A15 Display",v:"OLED",q:6,price:1950},{p:"iPhone 11 Battery",v:"OEM",q:3,price:990}]},
+   {id:"INV-2048",rid:2,date:"18 Jun, 09:15 AM",amount:6800,type:"Cash",items:[{p:"Redmi Note 12 Charging IC",v:"Copy",q:20,price:150},{p:"Oppo A54 Flex Cable",v:"OEM",q:30,price:130}]},
+   {id:"INV-2045",rid:4,date:"18 Jun, 08:20 AM",amount:9900,type:"Online",items:[{p:"iPhone 11 Battery",v:"Original",q:6,price:1650}]},
+   {id:"INV-2047",rid:4,date:"17 Jun, 06:30 PM",amount:8400,type:"Online",items:[{p:"Vivo Y22 Back Panel",v:"Original",q:20,price:420}]},
+   {id:"INV-2046",rid:3,date:"17 Jun, 02:10 PM",amount:9750,type:"Credit",items:[{p:"Samsung A15 Display",v:"Incell",q:8,price:1150}]}
+  ],
+  payments:[
+   {rid:1,date:"16 Jun",amount:20000,mode:"Online"},
+   {rid:2,date:"15 Jun",amount:30000,mode:"Bank"},
+   {rid:4,date:"14 Jun",amount:5000,mode:"Cash"}
+  ],
+  returns:[
+   {id:"RET-118",rid:1,name:"ABC Mobiles",date:"18 Jun, 11:10 AM",item:"Samsung A15 Display (OLED)",qty:1,amount:1950,reason:"Dead pixels"},
+   {id:"RET-117",rid:3,name:"Khan Mobile Hub",date:"17 Jun, 05:40 PM",item:"iPhone 11 Battery (Copy)",qty:2,amount:1040,reason:"Customer return"}
+  ],
+  requests:[
+   {id:1,rid:4,name:"Sri Lakshmi Cells",item:"Samsung A15 Display (Original)",qty:10,time:"Yesterday",status:"new"},
+   {id:2,rid:2,name:"Sai Telecom",item:"iPhone 11 Battery (OEM)",qty:25,time:"2 days ago",status:"new"}
+  ],
+  invSeq:2050,retSeq:119
+};
+var W_NOTIS=[
+ {icon:"rose",t:"Overdue alert \u00b7 Verma Communication",d:"\u20B951,500 is 18 days overdue. Account over credit limit.",time:"2m",via:"WhatsApp + App"},
+ {icon:"amber",t:"Credit limit warning \u00b7 Khan Mobile Hub",d:"Only \u20B91,000 credit available. Next credit sale may be blocked.",time:"1h",via:"App"},
+ {icon:"indigo",t:"Payment reminder sent \u00b7 ABC Mobiles",d:"Auto-reminder for \u20B980,000 delivered on WhatsApp.",time:"3h",via:"WhatsApp"},
+ {icon:"green",t:"Payment received \u00b7 Sai Telecom",d:"\u20B930,000 recorded via Bank transfer.",time:"Yesterday",via:"App"},
+ {icon:"violet",t:"Stock request \u00b7 Sri Lakshmi Cells",d:"Requested 10\u00d7 Samsung A15 Display (Original).",time:"Yesterday",via:"App"}
+];
+
+/* ---- RETAILER side (ABC Mobiles) ---- */
+var R={
+  online:true,
+  shop:"ABC Mobiles",owner:"Rajesh Kumar",city:"Delhi",area:"Karol Bagh",
+  // dues this retailer owes to each wholesaler
+  wholesalers:[
+   {id:1,name:"Mehta Mobile Distributors",city:"Delhi",img:"#5B7CFA",due:80000,limit:100000,nextDue:"24 Jun",overdue:0},
+   {id:2,name:"Sharma Telecom Supply",city:"Delhi",img:"#2DD4A7",due:24500,limit:60000,nextDue:"21 Jun",overdue:0},
+   {id:3,name:"Gupta Spare World",city:"Ghaziabad",img:"#A98BFA",due:13200,limit:40000,nextDue:"19 Jun",overdue:1}
+  ],
+  // own shop inventory
+  inventory:[
+   {id:1,name:"Samsung A15 Display (OLED)",qty:7,cost:1950,sell:2600},
+   {id:2,name:"iPhone 11 Battery (OEM)",qty:3,cost:990,sell:1500},
+   {id:3,name:"Redmi Note 12 Charging IC (Copy)",qty:22,cost:150,sell:350},
+   {id:4,name:"Vivo Y22 Back Panel (Original)",qty:1,cost:420,sell:650},
+   {id:5,name:"Tempered Glass (Universal)",qty:64,cost:18,sell:99}
+  ],
+  // live catalog available at wholesalers
+  catalog:[
+   {wid:1,wname:"Mehta Mobile Distributors",img:"#5B7CFA",name:"Samsung A15 Display",variant:"Original",price:2400,stock:12,warranty:"6 months"},
+   {wid:1,wname:"Mehta Mobile Distributors",img:"#5B7CFA",name:"Samsung A15 Display",variant:"OLED",price:1950,stock:28,warranty:"3 months"},
+   {wid:1,wname:"Mehta Mobile Distributors",img:"#5B7CFA",name:"iPhone 11 Battery",variant:"OEM",price:990,stock:35,warranty:"3 months"},
+   {wid:2,wname:"Sharma Telecom Supply",img:"#2DD4A7",name:"Redmi Note 12 Charging IC",variant:"Original",price:330,stock:18,warranty:"1 month"},
+   {wid:2,wname:"Sharma Telecom Supply",img:"#2DD4A7",name:"Oppo A54 Flex Cable",variant:"OEM",price:125,stock:40,warranty:"No warranty"},
+   {wid:3,wname:"Gupta Spare World",img:"#A98BFA",name:"Vivo Y22 Back Panel",variant:"Original",price:410,stock:22,warranty:"No warranty"},
+   {wid:3,wname:"Gupta Spare World",img:"#A98BFA",name:"iPhone 11 Battery",variant:"Original",price:1590,stock:9,warranty:"6 months"}
+  ],
+  requests:[
+   {item:"Samsung A15 Display (Original)",w:"Mehta Mobile Distributors",qty:10,status:"Quoted \u00b7 \u20B92,350",time:"Today"},
+   {item:"Oppo A54 Flex Cable (OEM)",w:"Sharma Telecom Supply",qty:30,status:"Pending",time:"Yesterday"}
+  ],
+  payHistory:[
+   {w:"Mehta Mobile Distributors",date:"16 Jun",amount:20000,mode:"Online"},
+   {w:"Gupta Spare World",date:"12 Jun",amount:8000,mode:"Cash"}
+  ],
+  // retailer-to-retailer marketplace (same-city listings). mine:true = posted by ABC Mobiles
+  listingSeq:100,
+  localListings:[
+   {id:1,shop:"Sharma Mobile Point",area:"Lajpat Nagar",city:"Delhi",phone:"98111 22334",rating:4.6,name:"Samsung A15 Display",grade:"Original",price:2250,qty:5,note:"Sealed pack, billed stock",time:"2h ago",mine:false},
+   {id:2,shop:"Royal Telecom",area:"Nehru Place",city:"Delhi",phone:"98222 33445",rating:4.8,name:"iPhone 12 Display",grade:"OLED",price:3400,qty:3,note:"Pulled from new sets",time:"5h ago",mine:false},
+   {id:3,shop:"Bright Mobiles",area:"Karol Bagh",city:"Delhi",phone:"98333 44556",rating:4.2,name:"Redmi Note 12 Folder",grade:"Original",price:780,qty:8,note:"Extra stock, urgent sale",time:"Yesterday",mine:false},
+   {id:4,shop:"City Cellpoint",area:"Rajouri Garden",city:"Delhi",phone:"98444 55667",rating:4.5,name:"Vivo Y22 Battery",grade:"OEM",price:540,qty:12,note:"Bulk available",time:"Yesterday",mine:false},
+   {id:5,shop:"Hyderabad Mobiles",area:"Ameerpet",city:"Hyderabad",phone:"99000 11223",rating:4.3,name:"Oppo A54 Display",grade:"Original",price:1980,qty:4,note:"",time:"3h ago",mine:false}
+  ]
+};
+
+function riskColor(r){return {Low:"green",Medium:"amber",High:"rose",Critical:"rose",New:"gray"}[r]||"gray";}
+function scoreColor(s){return s>=80?"#34D399":s>=55?"#F5B544":s>=35?"#FF6B6B":"#e05252";}
+
+/* ============================ ROUTER ============================ */
+var APP=null; // 'W' or 'R'
+var AUTH={stage:"phone",phone:"",otp:"",loggedIn:false}; // phone -> otp -> chooser
+var S={tab:"home",route:null,sheet:null};
+var shell=document.getElementById("shell");
+
+function setAccent(which){
+  var r=document.documentElement.style;
+  if(which==="R"){r.setProperty('--accent','var(--mint)');r.setProperty('--accent-deep','var(--mint-deep)');r.setProperty('--accent-glow','var(--mint-glow)');r.setProperty('--accent-bg','var(--mint-bg)');}
+  else{r.setProperty('--accent','var(--indigo)');r.setProperty('--accent-deep','var(--indigo-deep)');r.setProperty('--accent-glow','var(--indigo-glow)');r.setProperty('--accent-bg','var(--indigo-bg)');}
+}
+function openApp(which){APP=which;S={tab:"home",route:null,sheet:null};setAccent(which);render();}
+function go(r){S.route=r;S.sheet=null;render();}
+function back(){S.route=null;render();}
+function setTab(t){S.tab=t;S.route=null;render();}
+function openSheet(n,d){S.sheet={name:n,data:d};render();}
+function closeSheet(){S.sheet=null;render();}
+function toast(m){var t=document.createElement("div");t.className="toast";t.innerHTML='<span class="ck">'+svg("check",14)+'</span>'+esc(m);shell.appendChild(t);setTimeout(function(){if(t.parentNode)t.parentNode.removeChild(t);},2400);}
+function logout(){APP=null;AUTH={stage:"phone",phone:"",otp:"",loggedIn:false};setAccent("W");render();}
+
+function statusBar(){var d=new Date();var h=d.getHours()%12||12;var m=String(d.getMinutes()).padStart(2,"0");
+  return '<div class="statusbar"><span>'+h+':'+m+'</span><span><span class="sig"><i></i><i></i><i></i><i></i></span> <span style="font-size:11px;font-weight:700">5G</span> <span class="batt"><i></i></span></span></div>';}
+function appbar(title,sub,o){o=o||{};
+  var left=o.back?'<button class="back" onclick="back()">\u2039</button>':'';
+  var right=o.right||'';
+  return '<div class="appbar">'+left+'<div style="flex:1"><h1>'+esc(title)+'</h1>'+(sub?'<div class="sub">'+esc(sub)+'</div>':'')+'</div>'+right+'</div>';}
+function field(l,i){return '<div class="field"><label>'+l+'</label>'+i+'</div>';}
+
+/* ============================ MAIN RENDER ============================ */
+function render(){
+  if(!AUTH.loggedIn){renderAuth();return;}
+  if(!APP){renderChooser();return;}
+  var html=statusBar();
+  if(APP==="W")html+=renderW();
+  else html+=renderR();
+  shell.innerHTML=html;
+  if(S.sheet||(APP==="W"&&bill.picking))renderSheet();
+}
+
+/* ============================ ONBOARDING / AUTH ============================ */
+function renderAuth(){
+  if(AUTH.stage==="phone")renderAuthPhone();
+  else if(AUTH.stage==="otp")renderAuthOtp();
+  else renderChooser();
+}
+function authShell(body){
+  return '<div class="chooser" style="padding:0">'+
+    '<div style="flex:1;display:flex;flex-direction:column;padding:0 26px">'+body+'</div>'+
+    '<div class="dim" style="text-align:center;font-size:11px;padding-bottom:26px">Demo build \u00b7 v3.0 \u00b7 secure OTP login</div></div>';
+}
+function renderAuthPhone(){
+  var ok=AUTH.phone.replace(/\D/g,"").length===10;
+  shell.innerHTML=statusBar()+authShell(
+    '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:28px">'+
+      '<div style="display:flex;flex-direction:column;align-items:center;gap:18px">'+logoMark(72)+
+        '<div style="text-align:center">'+wordmark(26)+'<div class="muted" style="font-size:13px;margin-top:7px">The spare-parts trade network</div></div></div>'+
+      '<div>'+
+        '<div class="b" style="font-size:19px;margin-bottom:4px">Enter your mobile number</div>'+
+        '<div class="muted mini" style="margin-bottom:18px">We\u2019ll send a one-time password to verify it.</div>'+
+        '<div class="field"><label>Mobile number</label>'+
+          '<div style="display:flex;align-items:center;border:1.5px solid var(--line);border-radius:13px;background:var(--surf2);overflow:hidden">'+
+            '<span class="sb" style="padding:13px 12px;border-right:1px solid var(--line);color:var(--txt2)">+91</span>'+
+            '<input id="authPhone" inputmode="numeric" value="'+esc(AUTH.phone)+'" oninput="AUTH.phone=this.value.replace(/[^0-9]/g,\'\').slice(0,10);authPhoneChanged()" placeholder="98765 43210" style="border:none;outline:none;background:none;padding:13px 12px;width:100%;font-size:16px;color:var(--txt);font-family:inherit;letter-spacing:.5px"></div></div>'+
+        '<button class="btn btn-pri" id="authSend" '+(ok?"":"disabled")+' onclick="authSendOtp()">Send OTP</button>'+
+        '<div class="dim tiny" style="text-align:center;margin-top:16px;line-height:1.5">By continuing you agree to the Terms of Service<br>and Privacy Policy.</div>'+
+        '<div style="margin-top:18px"><button class="btn btn-soft btn-sm" style="margin:0 auto" onclick="installApp()">'+svg("plus",16)+'Install app on phone</button></div>'+
+      '</div></div>');
+}
+function authPhoneChanged(){var b=document.getElementById("authSend");if(b)b.disabled=AUTH.phone.replace(/\D/g,"").length!==10;}
+function authSendOtp(){if(AUTH.phone.replace(/\D/g,"").length!==10)return;AUTH.stage="otp";AUTH.otp="";render();}
+function renderAuthOtp(){
+  var ok=AUTH.otp.length===4;
+  shell.innerHTML=statusBar()+
+   '<div class="appbar"><button class="back" onclick="AUTH.stage=\'phone\';render()">\u2039</button><div style="flex:1"></div></div>'+
+   authShell('<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:24px">'+
+    '<div style="display:flex;flex-direction:column;align-items:center;gap:14px"><div style="width:60px;height:60px;border-radius:18px;background:var(--indigo-bg);display:flex;align-items:center;justify-content:center;color:var(--indigo)">'+svg("lock",28)+'</div>'+
+      '<div style="text-align:center"><div class="b" style="font-size:19px">Verify your number</div><div class="muted mini" style="margin-top:6px">Enter the 4-digit code sent to<br><span class="sb" style="color:var(--txt)">+91 '+esc(AUTH.phone)+'</span> <span class="tap" style="color:var(--indigo);font-weight:600" onclick="AUTH.stage=\'phone\';render()">Change</span></div></div></div>'+
+    '<div>'+otpBoxes()+
+      '<input id="authOtp" inputmode="numeric" value="'+esc(AUTH.otp)+'" oninput="AUTH.otp=this.value.replace(/[^0-9]/g,\'\').slice(0,4);authOtpChanged()" style="position:absolute;opacity:0;height:1px;width:1px" autofocus>'+
+      '<div class="banner indigo" style="margin:18px 0"><span style="font-weight:600">Demo tip:</span> enter any 4 digits to continue.</div>'+
+      '<button class="btn btn-pri" id="authVerify" '+(ok?"":"disabled")+' onclick="authVerify()">Verify & continue</button>'+
+      '<div class="dim tiny" style="text-align:center;margin-top:16px">Didn\u2019t get it? <span style="color:var(--indigo);font-weight:600">Resend in 0:28</span></div>'+
+    '</div></div>');
+  setTimeout(function(){var e=document.getElementById("authOtp");if(e)e.focus();},60);
+}
+function otpBoxes(){var d=AUTH.otp.split("");var b="";for(var i=0;i<4;i++){var f=d[i]||"";var active=i===d.length;b+='<div onclick="document.getElementById(\'authOtp\').focus()" style="flex:1;height:58px;border:1.8px solid '+(f?'var(--indigo)':active?'var(--indigo)':'var(--line)')+';border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;background:var(--surf2);'+(active?'box-shadow:0 0 0 3px var(--indigo-glow)':'')+'">'+f+'</div>';}return '<div style="display:flex;gap:10px">'+b+'</div>';}
+function authOtpChanged(){
+  // re-render just the boxes + button without rebuilding the input (keeps focus)
+  renderAuthOtp();
+}
+function authVerify(){if(AUTH.otp.length!==4)return;AUTH.loggedIn=true;AUTH.stage="chooser";toast("Verified \u2014 welcome!");render();}
+
+/* ============================ CHOOSER ============================ */
+function renderChooser(){
+  shell.innerHTML=statusBar()+'<div class="chooser">'+
+   '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:30px">'+
+     '<div style="display:flex;flex-direction:column;align-items:center;gap:16px">'+
+       logoMark(64)+
+       '<div style="text-align:center">'+wordmark(25)+
+       '<div class="muted" style="font-size:13px;margin-top:6px">Signed in as +91 '+esc(AUTH.phone||"98100 11223")+'</div></div>'+
+     '</div>'+
+     '<div style="display:flex;flex-direction:column;gap:14px">'+
+       '<div class="muted" style="font-size:12px;font-weight:600;letter-spacing:.5px;text-align:center;text-transform:uppercase">Choose how you trade</div>'+
+       '<div class="choice tap" onclick="openApp(\'W\')"><div class="cglow" style="background:radial-gradient(circle,var(--indigo-glow),transparent 70%)"></div>'+
+         '<div class="cic" style="background:linear-gradient(135deg,var(--indigo),var(--indigo-deep))">'+svg("store",26)+'</div>'+
+         '<div><div class="b" style="font-size:16px">Wholesaler</div><div class="muted tiny" style="margin-top:3px">Sell parts \u00b7 billing, credit, collections</div></div>'+
+         '<span class="arr">'+svg("arr",20)+'</span></div>'+
+       '<div class="choice tap" onclick="openApp(\'R\')"><div class="cglow" style="background:radial-gradient(circle,var(--mint-glow),transparent 70%)"></div>'+
+         '<div class="cic" style="background:linear-gradient(135deg,var(--mint),var(--mint-deep))">'+svg("cart",26)+'</div>'+
+         '<div><div class="b" style="font-size:16px">Retailer</div><div class="muted tiny" style="margin-top:3px">Buy parts \u00b7 dues, stock, nearby market</div></div>'+
+         '<span class="arr">'+svg("arr",20)+'</span></div>'+
+     '</div>'+
+   '</div>'+
+   '<div style="text-align:center;padding-bottom:26px"><button class="btn btn-soft btn-sm" style="margin:0 auto" onclick="logout()">'+svg("logout",16)+'Log out</button></div>'+
+  '</div>';
+}
+function switchBtn(){return '<button class="iconbtn" onclick="APP=null;render()" title="Switch app">'+svg("swap",18)+'</button>';}
+function profileBtn(){return '<button class="iconbtn" onclick="go({name:\'profile\'})" title="Profile">'+svg("user",18)+'</button>';}
+
+/* ============================ PROFILE & SETTINGS (shared) ============================ */
+function viewProfile(){
+  var isW=APP==="W";
+  var name=isW?"Mehta Mobile Distributors":R.shop;
+  var who=isW?"Wholesaler":"Retailer";
+  var loc=isW?"Delhi":(R.area+", "+R.city);
+  var owner=isW?"Suresh Mehta":R.owner;
+  var accent=isW?"var(--indigo)":"var(--mint)";
+  function rowItem(ic,t,sub,act){return '<div class="listitem tap" '+(act?'onclick="'+act+'"':'')+'><div style="width:36px;height:36px;border-radius:10px;background:var(--surf2);color:var(--txt2);display:flex;align-items:center;justify-content:center">'+svg(ic,18)+'</div><div style="flex:1"><div class="sb mini">'+t+'</div>'+(sub?'<div class="tiny dim">'+sub+'</div>':'')+'</div>'+svg("arr",17,'style="color:var(--txt3)"')+'</div>';}
+  function toggleRow(ic,t,on){return '<div class="listitem"><div style="width:36px;height:36px;border-radius:10px;background:var(--surf2);color:var(--txt2);display:flex;align-items:center;justify-content:center">'+svg(ic,18)+'</div><div style="flex:1"><div class="sb mini">'+t+'</div></div><div style="width:42px;height:25px;border-radius:999px;background:'+(on?accent:'var(--raise)')+';position:relative;transition:.2s"><div style="position:absolute;top:3px;'+(on?'right:3px':'left:3px')+';width:19px;height:19px;border-radius:50%;background:#fff;transition:.2s"></div></div></div>';}
+  return appbar("Profile",who+" account",{back:true})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="card card-p" style="text-align:center;padding:24px">'+
+     '<div class="avatar" style="background:linear-gradient(135deg,'+accent+','+(isW?'var(--indigo-deep)':'var(--mint-deep)')+');width:72px;height:72px;font-size:26px;margin:0 auto;border-radius:22px">'+initials(name)+'</div>'+
+     '<div class="b" style="font-size:18px;margin-top:14px">'+esc(name)+'</div>'+
+     '<div class="muted mini" style="margin-top:3px">'+esc(loc)+'</div>'+
+     '<div class="row" style="justify-content:center;gap:8px;margin-top:12px"><span class="pill '+(isW?'indigo':'mint')+'">'+who+'</span>'+(isW?'<span class="pill gray">GST registered</span>':'<span class="pill green">'+svg("shield",12)+'Verified</span>')+'</div>'+
+     '<button class="btn btn-soft btn-sm" style="margin:14px auto 0" onclick="toast(\'Edit profile\')">'+svg("edit",15)+'Edit profile</button></div>'+
+
+   '<h2 class="sec">Account</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+
+     rowItem("user","Owner name",owner,"toast('Owner details')")+
+     rowItem("phone","Mobile number","+91 "+(AUTH.phone||"98100 11223"),"toast('Change number')")+
+     rowItem("store","Business details",isW?"GSTIN, address, bank":"Shop address, GST","toast('Business details')")+
+   '</div>'+
+
+   '<h2 class="sec">Preferences</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+
+     toggleRow("bell","Push & WhatsApp alerts",true)+
+     toggleRow("cloud","Auto-sync over mobile data",true)+
+     rowItem("globe","Language","English","toast('Language')")+
+   '</div>'+
+
+   '<h2 class="sec">Support</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+
+     rowItem("help","Help & support","Chat, call, FAQ","toast('Support')")+
+     rowItem("shield","Privacy & security",null,"toast('Privacy')")+
+     rowItem("doc","Terms & policies",null,"toast('Terms')")+
+   '</div>'+
+
+   '<button class="btn btn-soft" style="margin-top:18px" onclick="go({name:null});APP=null;render()">'+svg("swap",17)+'Switch to '+(isW?"Retailer":"Wholesaler")+' app</button>'+
+   '<button class="btn" style="margin-top:11px;background:var(--rose-bg);color:var(--rose)" onclick="logout()">'+svg("logout",17)+'Log out</button>'+
+   '<div class="dim tiny" style="text-align:center;margin-top:18px">MobiWholesale v3.0 \u00b7 Demo build</div>'+
+   '<div style="height:8px"></div></div></div>';
+}
+
+/* ============================ WHOLESALER APP ============================ */
+function wTabbar(){var items=[["home","Home","home"],["stock","Inventory","box"],["people","Retailers","users"],["reports","Reports","chart"]];
+  return '<div class="tabbar">'+items.map(function(i){return '<button class="tab'+(S.tab===i[0]?" on":"")+'" onclick="setTab(\''+i[0]+'\')">'+svg(i[2],23)+'<span>'+i[1]+'</span></button>';}).join("")+'</div>';}
+function wTotalOut(){return W.retailers.reduce(function(s,r){return s+r.out;},0);}
+function wR(id){for(var i=0;i<W.retailers.length;i++)if(W.retailers[i].id===id)return W.retailers[i];}
+function wP(id){for(var i=0;i<W.products.length;i++)if(W.products[i].id===id)return W.products[i];}
+
+function renderW(){
+  var html="";
+  if(S.route){var r=S.route;
+    if(r.name==="retailer")html+=wRetailer(r.data);
+    else if(r.name==="billing")html+=wBilling(r.data);
+    else if(r.name==="trust")html+=wTrust(r.data);
+    else if(r.name==="notifications")html+=wNotifs();
+    else if(r.name==="addRetailer")html+=wAddRetailer();
+    else if(r.name==="requests")html+=wRequests();
+    else if(r.name==="profile")html+=viewProfile();
+    return html;
+  }
+  if(S.tab==="home")html+=wHome();
+  else if(S.tab==="stock")html+=wStock();
+  else if(S.tab==="people")html+=wPeople();
+  else if(S.tab==="reports")html+=wReports();
+  html+='<button class="fab" onclick="openSheet(\'wquick\')">'+svg("plus",25)+'</button>'+wTabbar();
+  return html;
+}
+function netchip(on){return '<span class="netchip'+(on?" on":"")+'">'+(on?svg("cloud",13)+'Synced':svg("sync",13)+'Offline')+'</span>';}
+
+function wHome(){
+  var today=W.invoices.filter(function(i){return i.date.indexOf("18 Jun")>-1;}).reduce(function(s,i){return s+i.amount;},0);
+  var over=W.retailers.filter(function(r){return r.out>r.limit;}).length;
+  var atRisk=W.retailers.filter(function(r){return r.risk==="High"||r.risk==="Critical";}).length;
+  var newReq=W.requests.filter(function(q){return q.status==="new";}).length;
+
+  var attention=W.retailers.filter(function(r){return r.out>r.limit||r.risk==="Critical";}).map(function(r){
+    return '<div class="card card-p tap" style="margin-bottom:10px;border-left:3px solid var(--rose)" onclick="go({name:\'retailer\',data:'+r.id+'})">'+
+     '<div class="between"><div class="row"><div class="avatar" style="background:'+C[r.id%C.length]+';width:38px;height:38px;font-size:13px">'+initials(r.name)+'</div>'+
+     '<div><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">'+r.overdue+' overdue \u00b7 '+INR(r.out)+' due</div></div></div>'+
+     '<span class="pill '+riskColor(r.risk)+'">'+r.risk+'</span></div></div>';}).join("");
+
+  var recent=W.invoices.slice(0,4).map(function(inv){var r=wR(inv.rid);
+    return '<div class="listitem tap" onclick="openSheet(\'winvoice\',\''+inv.id+'\')">'+
+     '<div class="avatar" style="background:var(--indigo-bg);color:var(--indigo);width:38px;height:38px;font-size:12px">'+initials(r.name)+'</div>'+
+     '<div style="flex:1"><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">'+inv.id+' \u00b7 '+inv.date+'</div></div>'+
+     '<div style="text-align:right"><div class="sb mini mono">'+INR(inv.amount)+'</div><span class="pill '+(inv.type==="Credit"?"amber":"green")+'" style="padding:2px 7px;font-size:9.5px">'+inv.type+'</span></div></div>';}).join("");
+
+  var bell='<button class="iconbtn" onclick="go({name:\'notifications\'})">'+svg("bell",19)+'<span style="position:absolute;top:7px;right:8px;width:7px;height:7px;background:var(--amber);border-radius:50%"></span></button>';
+
+  return appbar("Mehta Mobile Distributors","Wholesaler \u00b7 Delhi",{right:'<div class="row" style="gap:8px">'+profileBtn()+bell+'</div>'})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="hero"><div class="bloom"></div>'+
+     '<div class="between"><span class="lab">TOTAL OUTSTANDING \u00b7 you are owed</span>'+netchip(W.online)+'</div>'+
+     '<div class="big mono">'+INR(wTotalOut())+'</div>'+
+     '<div class="row" style="margin-top:16px;gap:0">'+
+       '<div class="stat"><div class="sl">Today\u2019s sales</div><div class="sv mono">'+INR(today)+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">Over limit</div><div class="sv mono" style="color:var(--amber)">'+over+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">At risk</div><div class="sv mono" style="color:var(--rose)">'+atRisk+'</div></div>'+
+     '</div></div>'+
+
+   '<div class="card card-p tap" style="margin-top:12px;display:flex;align-items:center;gap:12px" onclick="wToggleOnline()">'+
+     '<div style="width:38px;height:38px;border-radius:11px;background:'+(W.online?'var(--green-bg)':'var(--amber-bg)')+';color:'+(W.online?'var(--green)':'var(--amber)')+';display:flex;align-items:center;justify-content:center">'+svg(W.online?"cloud":"sync",20)+'</div>'+
+     '<div style="flex:1"><div class="sb mini">'+(W.online?"All data synced":(W.pendingSync+" change"+(W.pendingSync!==1?"s":"")+" waiting")) +'</div><div class="tiny dim">'+(W.online?"Connected to cloud":"Working offline \u2014 saved on device")+'</div></div>'+
+     '<span class="pill gray">'+(W.online?"Go offline":"Sync now")+'</span></div>'+
+
+   (newReq?'<div class="card card-p tap" style="margin-top:12px;border:1px solid var(--violet)" onclick="go({name:\'requests\'})"><div class="between"><div class="row"><div style="width:38px;height:38px;border-radius:11px;background:var(--violet-bg);color:var(--violet);display:flex;align-items:center;justify-content:center">'+svg("cart",20)+'</div><div><div class="sb mini">'+newReq+' new stock request'+(newReq>1?"s":"")+'</div><div class="tiny dim">From retailers \u2014 tap to quote</div></div></div>'+svg("arr",18,'style="color:var(--txt3)"')+'</div></div>':'')+
+
+   '<h2 class="sec">Quick actions</h2><div class="grid2">'+
+     wqa("var(--indigo)","New invoice","Fast billing","bill","go({name:'billing'})")+
+     wqa("var(--green)","Collect payment","Record & proof","rupee","openSheet('wpayment')")+
+     wqa("var(--violet)","Add product","To inventory","box","openSheet('waddProduct')")+
+     wqa("var(--amber)","New retailer","With KYC","users","go({name:'addRetailer'})")+
+   '</div>'+
+   (attention?'<h2 class="sec">Needs attention</h2>'+attention:'')+
+   '<h2 class="sec">Recent invoices</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+recent+'</div>'+
+  '</div></div>';
+}
+function wqa(c,t,s,ic,act){return '<button class="card card-p qa tap" onclick="'+act+'"><div class="qaic" style="background:'+c+'22;color:'+c+'">'+svg(ic,21)+'</div><div class="sb" style="font-size:14px;margin-top:11px">'+t+'</div><div class="tiny dim">'+s+'</div></button>';}
+function wToggleOnline(){if(W.online){W.online=false;toast("Offline mode on \u2014 keep billing!");}else{var n=W.pendingSync;W.online=true;W.pendingSync=0;toast("Synced "+(n||"all")+" change"+(n!==1?"s":"")+" to cloud");}render();}
+
+var wStockQ="",wOpenP=null;
+function wStockCards(){
+  var list=W.products.filter(function(p){return p.name.toLowerCase().indexOf(wStockQ.toLowerCase())>-1;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:24px">No products match \u201C'+esc(wStockQ)+'\u201D</div>';
+  return list.map(function(p){var total=p.variants.reduce(function(a,v){return a+v.stock;},0);var open=wOpenP===p.id;
+    var vr=open?'<div style="border-top:1px solid var(--line-soft);padding:2px 16px 8px">'+p.variants.map(function(v){
+      return '<div class="listitem"><div class="dot" style="background:'+(v.stock<=5?'var(--rose)':'var(--green)')+'"></div><div style="flex:1"><div class="sb mini">'+v.variant+(v.stock<=5?' <span class="pill rose" style="padding:1px 6px;font-size:9px;margin-left:5px">LOW</span>':'')+'</div><div class="tiny dim mono">'+v.barcode+' \u00b7 '+v.warranty+'</div></div><div style="text-align:right"><div class="sb mini mono">'+INR(v.sell)+'</div><div class="tiny dim mono">stock '+v.stock+'</div></div></div>';}).join("")+'</div>':'';
+    return '<div class="card" style="margin-bottom:11px;overflow:hidden"><div class="card-p between tap" onclick="wOpenP=(wOpenP==='+p.id+'?null:'+p.id+');wStockFilter()"><div class="row"><div class="avatar" style="background:'+p.img+'22;color:'+p.img+'">'+svg("box",21)+'</div><div><div class="sb mini">'+esc(p.name)+'</div><div class="tiny dim">'+p.brand+' \u00b7 '+p.variants.length+' variants \u00b7 '+total+' in stock</div></div></div><span style="color:var(--txt3);transform:'+(open?"rotate(90deg)":"none")+';display:inline-flex;transition:.2s">'+svg("arr",18)+'</span></div>'+vr+'</div>';}).join("");
+}
+function wStockFilter(){var el=document.getElementById("wStockList");if(el)el.innerHTML=wStockCards();}
+function wStock(){
+  var units=W.products.reduce(function(s,p){return s+p.variants.reduce(function(a,v){return a+v.stock;},0);},0);
+  var low=W.products.reduce(function(s,p){return s+p.variants.filter(function(v){return v.stock<=5;}).length;},0);
+  var val=W.products.reduce(function(s,p){return s+p.variants.reduce(function(a,v){return a+v.stock*v.purchase;},0);},0);
+  return appbar("Inventory",W.products.length+" products \u00b7 "+units+" units",{right:switchBtn()})+
+  '<div class="scroll"><div class="pad"><div class="grid3">'+
+   '<div class="kpi"><div class="lab">Stock value</div><div class="val sm mono">'+INRk(val)+'</div></div>'+
+   '<div class="kpi"><div class="lab">Units</div><div class="val mono">'+units+'</div></div>'+
+   '<div class="kpi"><div class="lab">Low stock</div><div class="val mono" style="color:var(--rose)">'+low+'</div></div></div>'+
+   '<div class="card" style="margin-top:13px;display:flex;align-items:center;gap:10px;padding:3px 14px">'+svg("search",18,'style="color:var(--txt3)"')+'<input oninput="wStockQ=this.value;wStockFilter()" value="'+esc(wStockQ)+'" placeholder="Search product or barcode" style="border:none;outline:none;background:none;padding:13px 0;width:100%;font-size:15px;color:var(--txt);font-family:inherit"></div>'+
+   '<h2 class="sec">Products</h2><div id="wStockList">'+wStockCards()+'</div>'+
+   '<button class="btn btn-ghost" style="margin-top:6px" onclick="openSheet(\'waddProduct\')">'+svg("plus",18)+'Add new product</button>'+
+  '</div></div>';
+}
+
+var wPeopleQ="",wFilter="all";
+function wPeopleCards(){
+  var list=W.retailers.filter(function(r){return r.name.toLowerCase().indexOf(wPeopleQ.toLowerCase())>-1;});
+  if(wFilter==="risk")list=list.filter(function(r){return r.risk==="High"||r.risk==="Critical";});
+  if(wFilter==="due")list=list.filter(function(r){return r.out>0;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:24px">No retailers match</div>';
+  return list.map(function(r){var used=Math.min(100,Math.round(r.out/r.limit*100));
+    var bar=r.verified?'<div style="margin-top:13px"><div class="between tiny dim" style="margin-bottom:6px"><span>Outstanding '+INR(r.out)+'</span><span>Limit '+INR(r.limit)+'</span></div><div class="progress"><i style="width:'+used+'%;background:'+(used>=100?'var(--rose)':used>=80?'var(--amber)':'var(--accent)')+'"></i></div></div>':'';
+    var badge=r.verified?svg("shield",14,'style="color:var(--green)"'):'<span class="pill gray" style="padding:1px 6px;font-size:9px">UNVERIFIED</span>';
+    return '<div class="card card-p tap" style="margin-bottom:11px" onclick="go({name:\'retailer\',data:'+r.id+'})"><div class="between"><div class="row"><div class="avatar" style="background:'+C[r.id%C.length]+'">'+initials(r.name)+'</div><div><div class="sb" style="font-size:14.5px;display:flex;align-items:center;gap:6px">'+esc(r.name)+' '+badge+'</div><div class="tiny dim">'+esc(r.city)+'</div></div></div><span class="pill '+riskColor(r.risk)+'">'+r.risk+'</span></div>'+bar+'</div>';}).join("");
+}
+function wPeopleFilter(){var el=document.getElementById("wPeopleList");if(el)el.innerHTML=wPeopleCards();}
+function wSetFilter(f){wFilter=f;
+  var seg=document.getElementById("wPeopleSeg");
+  if(seg){var bs=seg.getElementsByTagName("button");["all","due","risk"].forEach(function(k,i){bs[i].className=(wFilter===k?"on":"");});}
+  wPeopleFilter();
+}
+function wPeople(){
+  return appbar("Retailers",W.retailers.length+" shops \u00b7 shared trust network",{right:'<div class="row" style="gap:8px">'+switchBtn()+'<button class="iconbtn" onclick="go({name:\'addRetailer\'})">'+svg("plus",19)+'</button></div>'})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="card" style="display:flex;align-items:center;gap:10px;padding:3px 14px;margin-bottom:12px">'+svg("search",18,'style="color:var(--txt3)"')+'<input oninput="wPeopleQ=this.value;wPeopleFilter()" value="'+esc(wPeopleQ)+'" placeholder="Search retailer" style="border:none;outline:none;background:none;padding:13px 0;width:100%;font-size:15px;color:var(--txt);font-family:inherit"></div>'+
+   '<div class="seg" id="wPeopleSeg" style="margin-bottom:14px"><button class="'+(wFilter==="all"?"on":"")+'" onclick="wSetFilter(\'all\')">All</button><button class="'+(wFilter==="due"?"on":"")+'" onclick="wSetFilter(\'due\')">Has dues</button><button class="'+(wFilter==="risk"?"on":"")+'" onclick="wSetFilter(\'risk\')">Risky</button></div>'+
+   '<div id="wPeopleList">'+wPeopleCards()+'</div></div></div>';
+}
+
+var wRetTab="ledger";
+function wRetailer(id){var r=wR(id);if(!r.verified)return wVerify(r);
+  var avail=r.limit-r.out;var myInv=W.invoices.filter(function(i){return i.rid===r.id;});var myPay=W.payments.filter(function(p){return p.rid===r.id;});
+  var cp=avail<=0?"rose":avail<r.limit*0.2?"amber":"green";var content="";
+  if(wRetTab==="ledger"){var e=myPay.map(function(p){return{k:"pay",date:p.date,amount:p.amount,mode:p.mode};}).concat(myInv.map(function(i){return{k:"inv",id:i.id,date:i.date,amount:i.amount,type:i.type};}));
+    content='<div class="banner indigo" style="margin:10px 0 12px">'+svg("shield",17)+'<span>This ledger is <b>private to you</b>. Other wholesalers trading with '+esc(r.name)+' cannot see it.</span></div>'+e.map(function(x){return '<div class="card card-p" style="margin-bottom:9px"><div class="between"><div class="row"><div style="width:34px;height:34px;border-radius:10px;background:'+(x.k==="pay"?'var(--green-bg)':'var(--indigo-bg)')+';color:'+(x.k==="pay"?'var(--green)':'var(--indigo)')+';display:flex;align-items:center;justify-content:center">'+svg(x.k==="pay"?"rupee":"bill",17)+'</div><div><div class="sb mini">'+(x.k==="pay"?"Payment received":x.id)+'</div><div class="tiny dim">'+x.date+(x.k==="pay"?' \u00b7 '+x.mode:' \u00b7 '+x.type)+'</div></div></div><div class="sb mono" style="color:'+(x.k==="pay"?'var(--green)':'var(--txt)')+'">'+(x.k==="pay"?"\u2212":"+")+INR(x.amount)+'</div></div></div>';}).join("");
+  } else if(wRetTab==="invoices"){content='<div style="margin-top:10px">'+(myInv.length?myInv.map(function(inv){return '<div class="card card-p tap" style="margin-bottom:9px" onclick="openSheet(\'winvoice\',\''+inv.id+'\')"><div class="between"><div><div class="sb mini">'+inv.id+'</div><div class="tiny dim">'+inv.date+' \u00b7 '+inv.items.length+' items</div></div><div style="text-align:right"><div class="sb mono mini">'+INR(inv.amount)+'</div><span class="pill '+(inv.type==="Credit"?"amber":"green")+'" style="padding:1px 7px;font-size:9.5px">'+inv.type+'</span></div></div></div>';}).join(""):'<div class="dim mini" style="text-align:center;padding:20px">No invoices yet.</div>')+'</div>';
+  } else {var dd=[["Aadhaar Card",r.docs.aadhaar],["PAN Card",r.docs.pan],["Shop Photo",r.docs.shop],["Address Proof",r.docs.addr]];content='<div style="margin-top:12px"><div class="banner green" style="margin-bottom:14px">'+svg("check",17)+'<span>Verified on 12 Jun 2026. Documents stored securely.</span></div><div class="grid2">'+dd.map(function(d){return '<div class="thumb'+(d[1]?" done":"")+'">'+svg(d[1]?"check":"doc",24)+'<span>'+d[0]+'</span></div>';}).join("")+'</div></div>';}
+  return appbar(r.name,r.owner+" \u00b7 "+r.city,{back:true})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="card card-p"><div class="between"><span class="tiny dim sb" style="letter-spacing:.5px">CREDIT STATUS</span><span class="pill '+cp+'">'+(avail<=0?"Over limit":"Active")+'</span></div>'+
+     '<div class="grid3" style="margin-top:14px;text-align:center">'+
+       '<div><div class="tiny dim">Limit</div><div class="sb mono" style="font-size:15px;margin-top:2px">'+INR(r.limit)+'</div></div>'+
+       '<div><div class="tiny dim">Outstanding</div><div class="sb mono" style="font-size:15px;margin-top:2px;color:var(--rose)">'+INR(r.out)+'</div></div>'+
+       '<div><div class="tiny dim">Available</div><div class="sb mono" style="font-size:15px;margin-top:2px;color:'+(avail>0?'var(--green)':'var(--rose)')+'">'+INR(Math.max(0,avail))+'</div></div></div>'+
+     '<div class="progress" style="margin-top:14px"><i style="width:'+Math.min(100,r.out/r.limit*100)+'%;background:'+(avail<=0?'var(--rose)':avail<r.limit*0.2?'var(--amber)':'var(--accent)')+'"></i></div></div>'+
+   '<div class="row" style="gap:9px;margin-top:12px">'+
+     '<button class="btn btn-pri btn-sm" style="flex:1;padding:13px" onclick="go({name:\'billing\',data:'+r.id+'})">'+svg("bill",16)+'Bill</button>'+
+     '<button class="btn btn-soft btn-sm" style="flex:1;padding:13px" onclick="openSheet(\'wpayment\','+r.id+')">'+svg("rupee",16)+'Payment</button>'+
+     '<button class="btn btn-soft btn-sm" style="flex:1;padding:13px" onclick="openSheet(\'wreturn\','+r.id+')">'+svg("ret",16)+'Return</button></div>'+
+   '<div class="card card-p tap" style="margin-top:12px;border-left:3px solid var(--violet)" onclick="go({name:\'trust\',data:'+r.id+'})"><div class="between"><div class="row"><div style="width:38px;height:38px;border-radius:11px;background:var(--violet-bg);color:var(--violet);display:flex;align-items:center;justify-content:center">'+svg("shield",20)+'</div><div><div class="sb mini">Shared trust score</div><div class="tiny dim">Seen by '+r.sharedWith+' other wholesalers</div></div></div><div style="text-align:right"><div class="b mono" style="font-size:18px;color:'+scoreColor(r.score)+'">'+r.score+'</div><span class="pill '+riskColor(r.risk)+'" style="padding:1px 7px;font-size:9.5px">'+r.risk+'</span></div></div></div>'+
+   '<div class="seg" style="margin:16px 0 6px"><button class="'+(wRetTab==="ledger"?"on":"")+'" onclick="wRetTab=\'ledger\';render()">Ledger</button><button class="'+(wRetTab==="invoices"?"on":"")+'" onclick="wRetTab=\'invoices\';render()">Invoices</button><button class="'+(wRetTab==="kyc"?"on":"")+'" onclick="wRetTab=\'kyc\';render()">KYC</button></div>'+
+   content+'<div style="height:8px"></div></div></div>';
+}
+function wVerify(r){var have=[r.docs.aadhaar,r.docs.pan,r.docs.shop,r.docs.addr].filter(Boolean).length;var dd=[["Aadhaar Card",r.docs.aadhaar],["PAN Card",r.docs.pan],["Shop Photo",r.docs.shop],["Address Proof",r.docs.addr]];
+  return appbar(r.name,"Pending verification",{back:true})+'<div class="scroll"><div class="pad"><div class="banner amber" style="margin-bottom:16px">'+svg("doc",17)+'<span>'+have+' of 4 documents uploaded. Review and approve to start billing.</span></div><div class="grid2">'+dd.map(function(d){return '<div class="thumb'+(d[1]?" done":"")+'">'+svg(d[1]?"check":"doc",25)+'<span>'+d[0]+'</span><span class="tiny" style="color:'+(d[1]?'var(--green)':'var(--txt3)')+'">'+(d[1]?"Received":"Missing")+'</span></div>';}).join("")+'</div><button class="btn btn-pri" style="margin-top:20px" onclick="wApprove('+r.id+')">Approve & verify retailer</button></div></div>';}
+function wApprove(id){var r=wR(id);r.verified=true;r.risk="New";r.score=50;r.docs={aadhaar:1,pan:1,shop:1,addr:1};toast(r.name+" approved");back();}
+
+function wTrust(id){var r=wR(id);var CC=2*Math.PI*52;var vis=[["Trust score",r.score],["Risk level",r.risk],["Overdue incidents",r.overdue],["Trading wholesalers",r.sharedWith]];var hid=["Invoice amounts","Product details","Ledger entries","Payment details"];
+  function vr(l,v,ok){return '<div class="listitem"><div style="width:30px;height:30px;border-radius:9px;background:'+(ok?'var(--green-bg)':'var(--rose-bg)')+';color:'+(ok?'var(--green)':'var(--rose)')+';display:flex;align-items:center;justify-content:center">'+(ok?svg("check",16):'<span style="font-size:15px;font-weight:700">\u2715</span>')+'</div><div class="sb mini" style="flex:1">'+l+'</div>'+(ok&&v!==null?'<span class="mono sb mini">'+v+'</span>':'<span class="tiny dim">Hidden</span>')+'</div>';}
+  return appbar("Shared trust score",r.name,{back:true})+'<div class="scroll"><div class="pad">'+
+   '<div class="card card-p" style="text-align:center;padding:26px"><div style="width:124px;height:124px;margin:0 auto;position:relative"><svg viewBox="0 0 120 120" style="transform:rotate(-90deg);width:124px;height:124px"><circle cx="60" cy="60" r="52" fill="none" stroke="var(--raise)" stroke-width="10"/><circle cx="60" cy="60" r="52" fill="none" stroke="'+scoreColor(r.score)+'" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+CC+'" stroke-dashoffset="'+(CC*(1-r.score/100))+'"/></svg><div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center"><div class="b mono" style="font-size:34px;color:'+scoreColor(r.score)+';line-height:1">'+r.score+'</div><div class="tiny dim">/ 100</div></div></div><div><span class="pill '+riskColor(r.risk)+'" style="margin-top:14px;font-size:13px;padding:6px 16px">'+r.risk+' risk</span></div><div class="dim mini" style="margin-top:10px;line-height:1.5;padding:0 8px">A community signal built from how this shop pays across all wholesalers \u2014 without exposing private business.</div></div>'+
+   '<h2 class="sec">What other wholesalers see</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+vis.map(function(v){return vr(v[0],v[1],true);}).join("")+'</div>'+
+   '<h2 class="sec">Always kept private</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+hid.map(function(h){return vr(h,null,false);}).join("")+'</div>'+
+   '<div class="banner violet" style="margin-top:16px">'+svg("shield",17)+'<span>'+esc(r.name)+' exists once in MobiWholesale. Each wholesaler keeps a separate private account, only the trust signal is shared.</span></div><div style="height:8px"></div></div></div>';
+}
+
+function wRequests(){
+  return appbar("Stock requests","From your retailers",{back:true})+'<div class="scroll"><div class="pad">'+
+   '<div class="banner violet" style="margin-bottom:14px">'+svg("cart",17)+'<span>Retailers send requests from their app. Quote a price and it goes back to them instantly.</span></div>'+
+   W.requests.map(function(q){return '<div class="card card-p" style="margin-bottom:11px"><div class="between"><div class="row"><div class="avatar" style="background:'+C[q.rid%C.length]+';width:38px;height:38px;font-size:13px">'+initials(q.name)+'</div><div><div class="sb mini">'+esc(q.name)+'</div><div class="tiny dim">'+q.time+'</div></div></div><span class="pill '+(q.status==="new"?"violet":"green")+'">'+(q.status==="new"?"New":"Quoted")+'</span></div><div class="card-p" style="background:var(--surf2);border-radius:12px;margin-top:12px;padding:12px"><div class="between"><div><div class="mini sb">'+esc(q.item)+'</div><div class="tiny dim">Qty requested: '+q.qty+'</div></div></div></div>'+(q.status==="new"?'<div class="row" style="gap:9px;margin-top:11px"><button class="btn btn-pri btn-sm" style="flex:1;padding:12px" onclick="wQuote('+q.id+')">Send quote</button><button class="btn btn-soft btn-sm" style="flex:1;padding:12px" onclick="toast(\'Request declined\')">Decline</button></div>':'')+'</div>';}).join("")+
+   '<div style="height:8px"></div></div></div>';
+}
+function wQuote(id){for(var i=0;i<W.requests.length;i++)if(W.requests[i].id===id)W.requests[i].status="quoted";toast("Quote sent to retailer");render();}
+
+function wAddRetailer(){var ready=wnewR.name&&wnewR.owner&&wnewR.phone&&wnewR.docs.aadhaar&&wnewR.docs.pan&&wnewR.docs.shop&&wnewR.docs.addr;var dd=[["aadhaar","Aadhaar Card"],["pan","PAN Card"],["shop","Shop Photo"],["addr","Address Proof"]];
+  return appbar("New retailer","Create & verify a shop",{back:true})+'<div class="scroll"><div class="pad">'+
+   '<div class="banner indigo" style="margin-bottom:16px">'+svg("users",17)+'<span>If this shop already trades on MobiWholesale, you link to the existing profile \u2014 never duplicated.</span></div>'+
+   '<div class="card card-p">'+field("Shop name",'<input value="'+esc(wnewR.name)+'" oninput="wnewR.name=this.value" placeholder="e.g. New Star Mobiles">')+field("Owner name",'<input value="'+esc(wnewR.owner)+'" oninput="wnewR.owner=this.value" placeholder="Full name">')+field("Phone (WhatsApp)",'<input value="'+esc(wnewR.phone)+'" oninput="wnewR.phone=this.value" placeholder="10-digit mobile">')+field("City / area",'<input value="'+esc(wnewR.city)+'" oninput="wnewR.city=this.value" placeholder="Shop location">')+field("Credit limit (\u20B9)",'<input inputmode="numeric" value="'+esc(wnewR.limit)+'" oninput="wnewR.limit=this.value">')+'</div>'+
+   '<h2 class="sec">Upload documents</h2><div class="grid2">'+dd.map(function(d){return '<div class="thumb'+(wnewR.docs[d[0]]?" done":"")+'" onclick="wnewR.docs.'+d[0]+'=wnewR.docs.'+d[0]+'?0:1;render()">'+svg(wnewR.docs[d[0]]?"check":"cam",25)+'<span>'+d[1]+'</span>'+(wnewR.docs[d[0]]?'<span class="tiny" style="color:var(--green)">Uploaded</span>':'<span class="tiny dim">Tap to capture</span>')+'</div>';}).join("")+'</div>'+
+   '<div class="banner amber" style="margin:16px 0">'+svg("shield",17)+'<span>Manual verification \u2014 no online KYC. You review documents and approve yourself.</span></div>'+
+   '<button class="btn btn-pri" '+(ready?"":"disabled")+' onclick="wSaveRetailer()">'+(ready?"Verify & approve retailer":"Fill details + upload 4 documents")+'</button><div style="height:14px"></div></div></div>';
+}
+var wnewR={name:"",owner:"",phone:"",city:"",limit:"50000",docs:{aadhaar:0,pan:0,shop:0,addr:0}};
+function wSaveRetailer(){var id=Math.max.apply(null,W.retailers.map(function(r){return r.id;}))+1;W.retailers.unshift({id:id,name:wnewR.name,owner:wnewR.owner,city:wnewR.city||"\u2014",limit:+wnewR.limit||50000,out:0,score:50,risk:"New",overdue:0,verified:true,sharedWith:1,docs:{aadhaar:1,pan:1,shop:1,addr:1}});toast(wnewR.name+" verified & added");wnewR={name:"",owner:"",phone:"",city:"",limit:"50000",docs:{aadhaar:0,pan:0,shop:0,addr:0}};setTab("people");}
+
+function wNotifs(){var map={rose:["var(--rose-bg)","var(--rose)","bell"],amber:["var(--amber-bg)","var(--amber)","shield"],indigo:["var(--indigo-bg)","var(--indigo)","wa"],green:["var(--green-bg)","var(--green)","rupee"],violet:["var(--violet-bg)","var(--violet)","cart"]};
+  return appbar("Notifications","In-app + WhatsApp",{back:true})+'<div class="scroll"><div class="pad"><div class="banner indigo" style="margin-bottom:14px">'+svg("wa",17)+'<span>Reminders go out automatically via in-app and WhatsApp \u2014 no manual typing.</span></div>'+W_NOTIS.map(function(n){var m=map[n.icon];return '<div class="card card-p" style="margin-bottom:10px"><div class="row" style="align-items:flex-start"><div style="width:38px;height:38px;border-radius:11px;background:'+m[0]+';color:'+m[1]+';display:flex;align-items:center;justify-content:center;flex:none">'+svg(m[2],18)+'</div><div style="flex:1"><div class="between"><div class="sb mini" style="flex:1">'+n.t+'</div><span class="tiny dim">'+n.time+'</span></div><div class="mini dim" style="margin-top:3px;line-height:1.45">'+n.d+'</div><span class="pill gray" style="margin-top:8px;padding:2px 8px;font-size:9.5px">'+n.via+'</span></div></div></div>';}).join("")+'</div></div>';}
+
+var reportRange="today",reportFilter="all";
+function wReportInvoices(){
+  // filter by range
+  return W.invoices.filter(function(i){return reportRange==="week"?true:i.date.indexOf("18 Jun")>-1;});
+}
+function wReportTxnList(){
+  var inv=wReportInvoices();
+  if(reportFilter==="returns"){
+    var rets=W.returns.filter(function(r){return reportRange==="week"?true:r.date.indexOf("18 Jun")>-1;});
+    if(!rets.length)return '<div class="dim mini" style="text-align:center;padding:22px">No returns in this period.</div>';
+    return rets.map(function(rt){return '<div class="listitem"><div style="width:34px;height:34px;border-radius:10px;background:var(--rose-bg);color:var(--rose);display:flex;align-items:center;justify-content:center">'+svg("ret",16)+'</div><div style="flex:1"><div class="sb mini">'+esc(rt.item)+'</div><div class="tiny dim">'+esc(rt.name)+' \u00b7 qty '+rt.qty+' \u00b7 '+rt.reason+'</div></div><div class="sb mono mini" style="color:var(--rose)">\u2212'+INR(rt.amount)+'</div></div>';}).join("");
+  }
+  if(reportFilter!=="all")inv=inv.filter(function(i){return i.type===reportFilter;});
+  if(!inv.length)return '<div class="dim mini" style="text-align:center;padding:22px">No '+(reportFilter==="all"?"":reportFilter+" ")+'transactions in this period.</div>';
+  var cmap={Cash:["var(--green-bg)","var(--green)"],Online:["var(--indigo-bg)","var(--indigo)"],Credit:["var(--amber-bg)","var(--amber)"]};
+  return inv.map(function(i){var r=wR(i.rid);var cm=cmap[i.type]||["var(--surf2)","var(--txt2)"];return '<div class="listitem tap" onclick="openSheet(\'winvoice\',\''+i.id+'\')"><div style="width:34px;height:34px;border-radius:10px;background:'+cm[0]+';color:'+cm[1]+';display:flex;align-items:center;justify-content:center">'+svg("bill",16)+'</div><div style="flex:1"><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">'+i.id+' \u00b7 '+i.date+'</div></div><div style="text-align:right"><div class="sb mono mini">'+INR(i.amount)+'</div><span class="pill '+(i.type==="Credit"?"amber":i.type==="Online"?"indigo":"green")+'" style="padding:1px 7px;font-size:9.5px">'+i.type+'</span></div></div>';}).join("");
+}
+function wReportTxnRefresh(){var el=document.getElementById("reportTxns");if(el)el.innerHTML=wReportTxnList();}
+function wSetReportFilter(f){reportFilter=f;
+  var seg=document.getElementById("reportFilterSeg");if(seg){var bs=seg.getElementsByTagName("button");["all","Cash","Online","Credit","returns"].forEach(function(k,i){if(bs[i])bs[i].className=(reportFilter===k?"on":"");});}
+  wReportTxnRefresh();
+}
+function wReports(){
+  var inv=wReportInvoices();
+  var by=function(t){return inv.filter(function(i){return i.type===t;});};
+  var sum=function(a){return a.reduce(function(s,i){return s+i.amount;},0);};
+  var cash=by("Cash"),online=by("Online"),credit=by("Credit");
+  var rets=W.returns.filter(function(r){return reportRange==="week"?true:r.date.indexOf("18 Jun")>-1;});
+  var retVal=rets.reduce(function(s,r){return s+r.amount;},0);
+  var totalSales=sum(inv);
+  var coll=W.payments.reduce(function(s,p){return s+p.amount;},0);
+  var sales=[42,58,49,71,63,88,76];var days=["M","T","W","T","F","S","S"];var max=Math.max.apply(null,sales);
+
+  function modeCard(label,arr,ic,col){var amt=sum(arr);return '<div class="card card-p tap" style="margin-bottom:10px" onclick="wSetReportFilter(\''+label+'\')"><div class="between"><div class="row"><div style="width:40px;height:40px;border-radius:12px;background:'+col+'22;color:'+col+';display:flex;align-items:center;justify-content:center">'+svg(ic,20)+'</div><div><div class="sb mini">'+label+' transactions</div><div class="tiny dim">'+arr.length+' invoice'+(arr.length!==1?"s":"")+'</div></div></div><div class="sb mono" style="font-size:16px">'+INR(amt)+'</div></div></div>';}
+
+  var topDue=W.retailers.filter(function(r){return r.out>0;}).slice().sort(function(a,b){return b.out-a.out;}).slice(0,3).map(function(r){return '<div class="listitem"><div class="avatar" style="background:'+C[r.id%C.length]+';width:34px;height:34px;font-size:11px">'+initials(r.name)+'</div><div style="flex:1"><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">'+r.overdue+' overdue \u00b7 '+r.risk+' risk</div></div><div class="sb mono mini" style="color:'+(r.out>r.limit?'var(--rose)':'var(--txt)')+'">'+INR(r.out)+'</div></div>';}).join("");
+
+  return appbar("Reports",reportRange==="today"?"Today\u2019s business":"This week",{right:switchBtn()})+'<div class="scroll"><div class="pad">'+
+   '<div class="seg" style="margin-bottom:14px"><button class="'+(reportRange==="today"?"on":"")+'" onclick="reportRange=\'today\';reportFilter=\'all\';render()">Today</button><button class="'+(reportRange==="week"?"on":"")+'" onclick="reportRange=\'week\';reportFilter=\'all\';render()">This week</button></div>'+
+   // hero total
+   '<div class="hero"><div class="bloom"></div><div class="lab">'+(reportRange==="today"?"TODAY\u2019S SALES":"THIS WEEK\u2019S SALES")+'</div><div class="big mono">'+INR(totalSales)+'</div>'+
+     '<div class="row" style="margin-top:16px;gap:0">'+
+       '<div class="stat"><div class="sl">Invoices</div><div class="sv mono">'+inv.length+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">Collected</div><div class="sv mono" style="color:var(--green)">'+INRk(coll)+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">Returns</div><div class="sv mono" style="color:var(--rose)">'+INRk(retVal)+'</div></div></div></div>'+
+   // payment breakdown
+   '<h2 class="sec">Sales by payment method</h2>'+
+   modeCard("Cash",cash,"rupee","#34D399")+
+   modeCard("Online",online,"wa","#5B7CFA")+
+   modeCard("Credit",credit,"clock","#F5B544")+
+   // returns card
+   '<div class="card card-p tap" style="margin-bottom:10px;border-left:3px solid var(--rose)" onclick="wSetReportFilter(\'returns\')"><div class="between"><div class="row"><div style="width:40px;height:40px;border-radius:12px;background:var(--rose-bg);color:var(--rose);display:flex;align-items:center;justify-content:center">'+svg("ret",20)+'</div><div><div class="sb mini">Returned products</div><div class="tiny dim">'+rets.length+' return'+(rets.length!==1?"s":"")+'</div></div></div><div class="sb mono" style="font-size:16px;color:var(--rose)">\u2212'+INR(retVal)+'</div></div></div>'+
+   // 7-day chart
+   '<div class="card card-p" style="margin-top:4px"><div class="between"><span class="sb mini">Daily sales trend</span><span class="tiny dim">Last 7 days (\u20B9000s)</span></div><div class="barchart">'+sales.map(function(v,i){return '<div class="bar"><div class="col" style="height:'+(v/max*100)+'%"></div><div class="lb">'+days[i]+'</div></div>';}).join("")+'</div></div>'+
+   // transaction list with filter
+   '<h2 class="sec">Transactions</h2>'+
+   '<div class="seg" id="reportFilterSeg" style="margin-bottom:12px">'+["all","Cash","Online","Credit","returns"].map(function(k){var lbl=k==="all"?"All":k==="returns"?"Returns":k;return '<button class="'+(reportFilter===k?"on":"")+'" style="font-size:11.5px;padding:8px 4px" onclick="wSetReportFilter(\''+k+'\')">'+lbl+'</button>';}).join("")+'</div>'+
+   '<div class="card card-p" style="padding-top:2px;padding-bottom:2px"><div id="reportTxns">'+wReportTxnList()+'</div></div>'+
+   // top outstanding
+   '<h2 class="sec">Top outstanding</h2><div class="card card-p" style="padding-top:2px;padding-bottom:2px">'+(topDue||'<div class="dim mini" style="text-align:center;padding:18px">All clear \u2014 no dues.</div>')+'</div>'+
+   '<div style="height:8px"></div></div></div>';
+}
+function kpi(l,v,s,ic,c){return '<div class="kpi"><div class="tag" style="background:'+c+'22;color:'+c+'">'+svg(ic,16)+'</div><div class="lab">'+l+'</div><div class="val sm mono">'+v+'</div><div class="sub">'+s+'</div></div>';}
+
+/* ---- WHOLESALER BILLING ---- */
+var bill={step:0,rid:null,cart:[],payType:"Cash",picking:null,_init:false};
+var billShopQ="",billProdQ="";
+function wBillRetailerCards(){
+  var list=W.retailers.filter(function(r){return r.verified&&r.name.toLowerCase().indexOf(billShopQ.toLowerCase())>-1;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:24px">No shop matches \u201C'+esc(billShopQ)+'\u201D</div>';
+  return list.map(function(r){return '<div class="card card-p tap" style="margin-bottom:10px" onclick="bill.rid='+r.id+';bill.step=1;render()"><div class="between"><div class="row"><div class="avatar" style="background:'+C[r.id%C.length]+'">'+initials(r.name)+'</div><div><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">'+esc(r.city)+' \u00b7 credit left '+INR(Math.max(0,r.limit-r.out))+'</div></div></div><span class="pill '+riskColor(r.risk)+'">'+r.risk+'</span></div></div>';}).join("");
+}
+function wBillRetailerFilter(){var el=document.getElementById("billRetList");if(el)el.innerHTML=wBillRetailerCards();}
+function wBillProductCards(){
+  var list=W.products.filter(function(p){return (p.name+" "+p.brand).toLowerCase().indexOf(billProdQ.toLowerCase())>-1;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:24px">No product matches \u201C'+esc(billProdQ)+'\u201D</div>';
+  return list.map(function(p){var inCart=bill.cart.some(function(c){return c.pid===p.id;});return '<div class="card card-p between tap" style="margin-bottom:9px" onclick="bill.picking='+p.id+';render()"><div class="row"><div class="avatar" style="background:'+p.img+'22;color:'+p.img+';width:38px;height:38px">'+svg("box",20)+'</div><div><div class="sb mini">'+esc(p.name)+(inCart?' <span class="pill mint" style="padding:1px 6px;font-size:9px;margin-left:4px">IN CART</span>':'')+'</div><div class="tiny dim">'+p.brand+' \u00b7 '+p.variants.length+' variants \u00b7 from '+INR(Math.min.apply(null,p.variants.map(function(v){return v.sell;})))+'</div></div></div>'+svg("arr",18,'style="color:var(--txt3)"')+'</div>';}).join("");
+}
+function wBillProductFilter(){var el=document.getElementById("billProdList");if(el)el.innerHTML=wBillProductCards();}
+var PAYMODES=[["Cash","rupee"],["Online","wa"],["Credit","clock"]];
+function wBilling(presetId){
+  if(presetId&&bill.rid!==presetId){bill={step:1,rid:presetId,cart:[],payType:"Cash",picking:null,_init:true};billProdQ="";}
+  if(!presetId&&!bill._init){bill={step:0,rid:null,cart:[],payType:"Cash",picking:null,_init:true};billShopQ="";billProdQ="";}
+  var r=bill.rid?wR(bill.rid):null;var total=bill.cart.reduce(function(s,c){return s+c.price*c.q;},0);var avail=r?r.limit-r.out:0;var blocked=r&&bill.payType==="Credit"&&total>avail;
+  var stepper='<div style="display:flex;gap:6px;padding:6px 18px 0">'+["Shop","Products","Payment"].map(function(s,i){return '<div style="flex:1;text-align:center"><div style="height:4px;border-radius:3px;background:'+(i<=bill.step?'var(--accent)':'var(--raise)')+'"></div><div class="tiny" style="margin-top:5px;font-weight:600;color:'+(i<=bill.step?'var(--accent)':'var(--txt3)')+'">'+s+'</div></div>';}).join("")+'</div>';
+  var body="";
+  if(bill.step===0){
+    body='<h2 class="sec first">Select mobile shop</h2>'+
+      '<div class="card" style="display:flex;align-items:center;gap:10px;padding:3px 14px;margin-bottom:12px">'+svg("search",18,'style="color:var(--txt3)"')+'<input oninput="billShopQ=this.value;wBillRetailerFilter()" value="'+esc(billShopQ)+'" placeholder="Search shop by name" style="border:none;outline:none;background:none;padding:13px 0;width:100%;font-size:15px;color:var(--txt);font-family:inherit"></div>'+
+      '<div id="billRetList">'+wBillRetailerCards()+'</div>';
+  } else {
+    var cartHtml=bill.cart.length?'<h2 class="sec first">Cart \u00b7 '+bill.cart.length+' line'+(bill.cart.length>1?"s":"")+'</h2>'+bill.cart.map(function(c,i){return '<div class="card card-p" style="margin-bottom:9px"><div class="between"><div style="flex:1"><div class="sb mini">'+esc(c.p)+'</div><div class="tiny dim">'+c.v+' \u00b7 '+INR(c.price)+' ea \u00b7 stock '+c.max+'</div></div><div class="row" style="gap:8px"><button class="iconbtn" style="width:30px;height:30px;font-size:18px" onclick="wBillQty('+i+',-1)">\u2212</button><span class="b mono" style="min-width:18px;text-align:center">'+c.q+'</span><button class="iconbtn" style="width:30px;height:30px;font-size:18px" onclick="wBillQty('+i+',1)">+</button><span class="sb mono mini" style="min-width:54px;text-align:right">'+INR(c.price*c.q)+'</span></div></div></div>';}).join(""):"";
+    var search='<div class="card" style="display:flex;align-items:center;gap:10px;padding:3px 14px;margin-bottom:11px">'+svg("search",18,'style="color:var(--txt3)"')+'<input oninput="billProdQ=this.value;wBillProductFilter()" value="'+esc(billProdQ)+'" placeholder="Search products you added" style="border:none;outline:none;background:none;padding:13px 0;width:100%;font-size:15px;color:var(--txt);font-family:inherit"></div>';
+    var pay=bill.cart.length?'<h2 class="sec">Payment method</h2><div class="seg">'+PAYMODES.map(function(m){return '<button class="'+(bill.payType===m[0]?"on":"")+'" onclick="bill.payType=\''+m[0]+'\';render()">'+svg(m[1],14,'style="margin-right:5px;vertical-align:-2px"')+m[0]+'</button>';}).join("")+'</div>'+(bill.payType==="Online"?'<div class="banner indigo" style="margin-top:12px">'+svg("wa",17)+'<span>Payment link / UPI QR will be shared with the shop on save.</span></div>':"")+(blocked?'<div class="banner rose" style="margin-top:12px">'+svg("shield",17)+'<span><b>Credit limit exceeded.</b> This '+INR(total)+' credit sale needs '+INR(total-avail)+' more than available.</span></div>':''):"";
+    body='<div class="card card-p between" style="margin-bottom:14px"><div class="row"><div class="avatar" style="background:'+C[r.id%C.length]+';width:38px;height:38px;font-size:13px">'+initials(r.name)+'</div><div><div class="sb mini">'+esc(r.name)+'</div><div class="tiny dim">Credit left '+INR(Math.max(0,avail))+'</div></div></div><button class="btn btn-soft btn-sm" onclick="bill.step=0;bill.rid=null;bill.cart=[];billProdQ=\'\';render()">Change</button></div>'+cartHtml+'<h2 class="sec">'+(bill.cart.length?"Add another product":"Select product")+'</h2>'+search+'<div id="billProdList">'+wBillProductCards()+'</div>'+pay;
+  }
+  var checkout=(bill.step>=1&&bill.cart.length)?'<div style="position:absolute;bottom:0;left:0;right:0;background:#0C111F;border-top:1px solid var(--line);padding:14px 18px calc(18px + env(safe-area-inset-bottom))"><div class="between" style="margin-bottom:10px"><div><div class="tiny dim">Total \u00b7 '+bill.payType+'</div><div class="b mono" style="font-size:22px">'+INR(total)+'</div></div>'+(!W.online?'<span class="pill amber">Will sync later</span>':'')+'</div><button class="btn btn-pri" '+(blocked?"disabled":"")+' onclick="wBillSave()">'+(blocked?"Blocked \u2014 over credit limit":"Save invoice \u00b7 "+bill.payType)+'</button></div>':"";
+  return appbar("New invoice",r?r.name:"Fast billing",{back:true})+'<div class="scroll" style="padding-bottom:130px">'+stepper+'<div class="pad">'+body+'</div></div>'+checkout;
+}
+function wBillQty(i,d){var c=bill.cart[i];c.q=Math.max(1,Math.min(c.max,c.q+d));render();}
+function wBillAdd(pid,vi){var p=wP(pid);var v=p.variants[vi];bill.cart.push({p:p.name,v:v.variant,price:v.sell,q:1,pid:pid,max:v.stock});bill.picking=null;bill.step=2;billProdQ="";render();}
+function wBillSave(){var id="INV-"+(W.invSeq++);var now=new Date();var date=now.toLocaleDateString("en-IN",{day:"2-digit",month:"short"})+", "+now.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"});var total=bill.cart.reduce(function(s,c){return s+c.price*c.q;},0);W.invoices.unshift({id:id,rid:bill.rid,date:date,amount:total,type:bill.payType,items:bill.cart.map(function(c){return{p:c.p,v:c.v,q:c.q,price:c.price};})});bill.cart.forEach(function(c){var p=wP(c.pid);p.variants.forEach(function(v){if(v.variant===c.v)v.stock=Math.max(0,v.stock-c.q);});});if(bill.payType==="Credit"){wR(bill.rid).out+=total;}if(!W.online)W.pendingSync++;toast(id+" saved \u00b7 "+INR(total));bill={step:0,rid:null,cart:[],payType:"Cash",picking:null,_init:false};back();}
+
+/* ============================ RETAILER APP ============================ */
+function rTabbar(){var items=[["home","Home","home"],["market","Suppliers","store"],["nearby","Nearby","users"],["inv","My stock","box"]];
+  return '<div class="tabbar">'+items.map(function(i){return '<button class="tab'+(S.tab===i[0]?" on":"")+'" onclick="setTab(\''+i[0]+'\')">'+svg(i[2],23)+'<span>'+i[1]+'</span></button>';}).join("")+'</div>';}
+function rTotalDue(){return R.wholesalers.reduce(function(s,w){return s+w.due;},0);}
+
+function renderR(){
+  var html="";
+  if(S.route){var r=S.route;
+    if(r.name==="wholesaler")html+=rWholesaler(r.data);
+    else if(r.name==="catalog")html+=rWholesalerCatalog(r.data);
+    else if(r.name==="profile")html+=viewProfile();
+    return html;
+  }
+  if(S.tab==="home")html+=rHome();
+  else if(S.tab==="market")html+=rMarket();
+  else if(S.tab==="nearby")html+=rNearby();
+  else if(S.tab==="inv")html+=rInv();
+  else if(S.tab==="requests")html+=rRequests();
+  var fab=S.tab==="nearby"?'<button class="fab" onclick="openSheet(\'rpost\')" title="Post part for sale">'+svg("plus",25)+'</button>'
+         :'<button class="fab" onclick="openSheet(\'rrequest\')">'+svg("plus",25)+'</button>';
+  html+=fab+rTabbar();
+  return html;
+}
+function rW(id){for(var i=0;i<R.wholesalers.length;i++)if(R.wholesalers[i].id===id)return R.wholesalers[i];}
+
+/* ---- NEARBY: retailer-to-retailer local marketplace ---- */
+var nearbyQ="",nearbyScope="city"; // city = same city only
+function rNearbyCards(){
+  var list=R.localListings.filter(function(l){return !l.mine;});
+  if(nearbyScope==="city")list=list.filter(function(l){return l.city===R.city;});
+  if(nearbyQ)list=list.filter(function(l){return (l.name+" "+l.grade+" "+l.shop+" "+l.area).toLowerCase().indexOf(nearbyQ.toLowerCase())>-1;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:28px">No listings'+(nearbyScope==="city"?' in '+R.city:'')+' yet.<br>Be the first \u2014 post a part you have spare.</div>';
+  return list.map(function(l){var col=C[l.id%C.length];
+    return '<div class="card card-p" style="margin-bottom:10px">'+
+     '<div class="between"><div class="row"><div class="avatar" style="background:'+col+'22;color:'+col+';width:42px;height:42px">'+svg("box",21)+'</div>'+
+       '<div><div class="sb mini">'+esc(l.name)+'</div><div class="tiny dim">'+l.grade+(l.qty?' \u00b7 qty '+l.qty:'')+'</div></div></div>'+
+       '<div style="text-align:right"><div class="b mono mini">'+INR(l.price)+'</div><div class="tiny dim">'+l.time+'</div></div></div>'+
+     (l.note?'<div class="tiny dim" style="margin-top:8px;font-style:italic">\u201C'+esc(l.note)+'\u201D</div>':'')+
+     '<div class="between" style="margin-top:11px;padding-top:11px;border-top:1px solid var(--line-soft)">'+
+       '<div class="row" style="gap:7px"><div style="width:26px;height:26px;border-radius:8px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--txt2)">'+initials(l.shop)+'</div>'+
+       '<div><div class="tiny sb">'+esc(l.shop)+'</div><div class="tiny dim">'+esc(l.area)+' \u00b7 \u2605 '+l.rating+'</div></div></div>'+
+       '<button class="btn btn-pri btn-sm" style="padding:9px 16px" onclick="rBuyLocal('+l.id+')">Contact</button></div>'+
+     '</div>';}).join("");
+}
+function rNearbyFilter(){var el=document.getElementById("nearbyList");if(el)el.innerHTML=rNearbyCards();}
+function rSetScope(s){nearbyScope=s;var seg=document.getElementById("nearbyScope");if(seg){var bs=seg.getElementsByTagName("button");["city","all"].forEach(function(k,i){bs[i].className=(nearbyScope===k?"on":"");});}rNearbyFilter();}
+function rBuyLocal(id){var l=null;for(var i=0;i<R.localListings.length;i++)if(R.localListings[i].id===id)l=R.localListings[i];toast("Chat opened with "+l.shop+" on WhatsApp");}
+function rNearby(){
+  var myPosts=R.localListings.filter(function(l){return l.mine;});
+  var myHtml=myPosts.length?'<h2 class="sec first">Your live listings</h2>'+myPosts.map(function(l){return '<div class="card card-p" style="margin-bottom:10px;border-left:3px solid var(--mint)"><div class="between"><div><div class="sb mini">'+esc(l.name)+' <span class="pill mint" style="padding:1px 7px;font-size:9.5px;margin-left:4px">LIVE</span></div><div class="tiny dim">'+l.grade+' \u00b7 qty '+l.qty+' \u00b7 '+INR(l.price)+'</div></div><button class="btn btn-soft btn-sm" style="padding:8px 12px" onclick="rUnpost('+l.id+')">Remove</button></div></div>';}).join(""):'';
+  return appbar("Nearby market","Buy & sell with shops in "+R.city,{right:switchBtn()})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="banner mint" style="margin-bottom:14px">'+svg("users",17)+'<span>Trade spare parts directly with other retailers in your city. Post what you have spare \u2014 nearby shops can buy it.</span></div>'+
+   myHtml+
+   '<div class="card" style="display:flex;align-items:center;gap:10px;padding:3px 14px;margin:'+(myPosts.length?'4px':'0')+' 0 12px">'+svg("search",18,'style="color:var(--txt3)"')+'<input oninput="nearbyQ=this.value;rNearbyFilter()" value="'+esc(nearbyQ)+'" placeholder="Search parts near you" style="border:none;outline:none;background:none;padding:13px 0;width:100%;font-size:15px;color:var(--txt);font-family:inherit"></div>'+
+   '<div class="seg" id="nearbyScope" style="margin-bottom:14px"><button class="'+(nearbyScope==="city"?"on":"")+'" onclick="rSetScope(\'city\')">In '+R.city+'</button><button class="'+(nearbyScope==="all"?"on":"")+'" onclick="rSetScope(\'all\')">All cities</button></div>'+
+   '<div id="nearbyList">'+rNearbyCards()+'</div>'+
+   '<button class="btn btn-ghost" style="margin-top:4px" onclick="openSheet(\'rpost\')">'+svg("plus",18)+'Post a part for sale</button>'+
+   '<div style="height:8px"></div></div></div>';
+}
+function rUnpost(id){R.localListings=R.localListings.filter(function(l){return l.id!==id;});toast("Listing removed");render();}
+
+function rHome(){
+  var due=rTotalDue();var overdue=R.wholesalers.filter(function(w){return w.overdue>0;}).length;
+  var invVal=R.inventory.reduce(function(s,it){return s+it.qty*it.cost;},0);
+  var lowOwn=R.inventory.filter(function(it){return it.qty<=3;}).length;
+  var wcards=R.wholesalers.map(function(w){var used=Math.min(100,Math.round(w.due/w.limit*100));
+    return '<div class="card card-p tap" style="margin-bottom:11px" onclick="go({name:\'wholesaler\',data:'+w.id+'})"><div class="between"><div class="row"><div class="avatar" style="background:'+w.img+';width:40px;height:40px">'+svg("store",20,'style="color:#fff"')+'</div><div><div class="sb mini">'+esc(w.name)+'</div><div class="tiny dim">'+esc(w.city)+(w.overdue?' \u00b7 <span style="color:var(--rose)">'+w.overdue+' overdue</span>':'')+'</div></div></div><div style="text-align:right"><div class="sb mono mini" style="color:'+(w.overdue?'var(--rose)':'var(--txt)')+'">'+INR(w.due)+'</div><div class="tiny dim">due '+w.nextDue+'</div></div></div><div class="progress" style="margin-top:12px"><i style="width:'+used+'%;background:'+(w.overdue?'var(--rose)':used>=80?'var(--amber)':'var(--accent)')+'"></i></div></div>';}).join("");
+
+  return appbar("ABC Mobiles","Retailer \u00b7 "+R.area+", "+R.city,{right:'<div class="row" style="gap:8px">'+profileBtn()+'<button class="iconbtn">'+svg("bell",19)+'<span style="position:absolute;top:7px;right:8px;width:7px;height:7px;background:var(--amber);border-radius:50%"></span></button></div>'})+
+  '<div class="scroll"><div class="pad">'+
+   '<div class="hero"><div class="bloom"></div><div class="between"><span class="lab">TOTAL YOU OWE \u00b7 across '+R.wholesalers.length+' suppliers</span>'+netchip(R.online)+'</div>'+
+     '<div class="big mono">'+INR(due)+'</div>'+
+     '<div class="row" style="margin-top:16px;gap:0">'+
+       '<div class="stat"><div class="sl">Stock value</div><div class="sv mono">'+INRk(invVal)+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">Suppliers</div><div class="sv mono">'+R.wholesalers.length+'</div></div><div class="divider"></div>'+
+       '<div class="stat" style="padding-left:14px"><div class="sl">Overdue</div><div class="sv mono" style="color:'+(overdue?'var(--rose)':'var(--green)')+'">'+overdue+'</div></div>'+
+     '</div></div>'+
+
+   '<h2 class="sec">Quick actions</h2><div class="grid2">'+
+     wqa("var(--mint)","Pay supplier","Clear your dues","rupee","openSheet('rpay')")+
+     wqa("var(--indigo)","Browse market","Stock at suppliers","store","setTab('market')")+
+     wqa("var(--violet)","Request stock","Ask for an item","cart","openSheet('rrequest')")+
+     wqa("var(--amber)","My stock","Track inventory","box","setTab('inv')")+
+   '</div>'+
+
+   (lowOwn?'<div class="card card-p" style="margin-top:16px;border-left:3px solid var(--amber)"><div class="row"><div style="width:38px;height:38px;border-radius:11px;background:var(--amber-bg);color:var(--amber);display:flex;align-items:center;justify-content:center">'+svg("box",20)+'</div><div style="flex:1"><div class="sb mini">'+lowOwn+' item'+(lowOwn>1?"s":"")+' low in your shop</div><div class="tiny dim">Reorder soon to avoid stockout</div></div><button class="btn btn-ghost btn-sm" onclick="setTab(\'inv\')">View</button></div></div>':'')+
+
+   '<h2 class="sec">Your suppliers \u00b7 dues</h2>'+wcards+
+  '</div></div>';
+}
+
+var rMarketQ="",rMarketW="all";
+function rMarketCards(){
+  var list=R.catalog.filter(function(c){return (c.name+" "+c.variant).toLowerCase().indexOf(rMarketQ.toLowerCase())>-1;});
+  if(rMarketW!=="all")list=list.filter(function(c){return c.wid===+rMarketW;});
+  if(!list.length)return '<div class="dim mini" style="text-align:center;padding:24px">No parts match</div>';
+  return list.map(function(c,i){return '<div class="card card-p" style="margin-bottom:10px"><div class="between"><div class="row"><div class="avatar" style="background:'+c.img+'22;color:'+c.img+';width:42px;height:42px">'+svg("box",21)+'</div><div><div class="sb mini">'+esc(c.name)+'</div><div class="tiny dim">'+c.variant+' \u00b7 '+c.warranty+'</div><div class="tiny" style="color:'+c.img+';margin-top:2px">'+esc(c.wname)+'</div></div></div><div style="text-align:right"><div class="b mono mini">'+INR(c.price)+'</div><div class="tiny dim">stock '+c.stock+'</div></div></div><div class="row" style="gap:9px;margin-top:12px"><button class="btn btn-pri btn-sm" s
